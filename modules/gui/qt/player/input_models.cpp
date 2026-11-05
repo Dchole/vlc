@@ -349,7 +349,9 @@ QVariant ChapterListModel::data(const QModelIndex &index, int role) const
     else if (role == Qt::CheckStateRole)
         return QVariant::fromValue<bool>(row == m_current);
     else if (role == ChapterListRoles::TimeRole )
-        return QVariant::fromValue<VLCTime>(chapter.time);
+        // How far into the title the chapter starts: a duration, not a time
+        // of the clock (that would make the first chapter's 0 invalid).
+        return QVariant::fromValue<VLCDuration>(VLCDuration(chapter.time));
     else if (role == ChapterListRoles::StartPositionRole && (m_title->length != 0))
         return QVariant::fromValue<float>(chapter.time / (float) m_title->length);
     else if (role == ChapterListRoles::EndPositionRole && (m_title->length != 0))
@@ -410,6 +412,15 @@ void ChapterListModel::resetTitle(const vlc_player_title *newTitle)
     beginResetModel();
     m_title =newTitle;
     m_current = -1;
+    // The chapter that plays may have been told before its title, while
+    // there was none to mark it in: ask the player.
+    if (m_title && m_title->chapter_count > 0)
+    {
+        vlc_player_locker lock{ m_player };
+        const ssize_t current = vlc_player_GetSelectedChapterIdx(m_player);
+        if (current >= 0 && static_cast<size_t>(current) < m_title->chapter_count)
+            m_current = current;
+    }
     endResetModel();
     emit countChanged();
 }
