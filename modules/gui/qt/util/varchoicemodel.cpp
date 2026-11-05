@@ -161,12 +161,54 @@ void VLCVarChoiceModel::onListUpdated(const vlc_object_t* object, int action, QV
 
     switch (action) {
     case VLC_VAR_ADDCHOICE:
+    {
+        // The callback only gives the value: the text that goes with it, and
+        // whether it is the current value, are asked from the variable. The
+        // choices of an audio output are cleared and added again each time
+        // it restarts, the stereo modes for instance.
+        QString title = newvalue.toString();
+        bool isCurrent = false;
+
+        size_t count = 0;
+        vlc_value_t* val_list = nullptr;
+        char** val_title = nullptr;
+        if( var_Change( m_object->get(), qtu(m_varname), VLC_VAR_GETCHOICES, &count, &val_list, &val_title ) >= 0 )
+        {
+            for (size_t i = 0; i < count; i++)
+            {
+                if ( val_title[i] && vlcValToVariant( val_list[i] ) == newvalue )
+                    title = qfu( val_title[i] );
+                free( val_title[i] );
+                if ( (m_type & VLC_VAR_CLASS) == VLC_VAR_STRING )
+                    free( val_list[i].psz_string );
+            }
+            free( val_list );
+            free( val_title );
+        }
+
+        vlc_value_t currentValue;
+        if ( var_Get( m_object->get(), qtu(m_varname), &currentValue ) == VLC_SUCCESS )
+        {
+            isCurrent = ( vlcValToVariant( currentValue ) == newvalue );
+            if ( (m_type & VLC_VAR_CLASS) == VLC_VAR_STRING )
+                free( currentValue.psz_string );
+        }
+
         beginInsertRows( QModelIndex{}, m_values.count(), m_values.count() );
         m_values.append( newvalue );
-        //we should probably rather get the whole choices list to get the associated text
-        m_titles.append( newvalue.toString() );
+        m_titles.append( title );
         endInsertRows();
+
+        if ( isCurrent )
+        {
+            const int oldCurrent = m_current;
+            m_current = m_values.count() - 1;
+            if ( oldCurrent == -1 )
+                emit hasCurrentChanged( true );
+            emit dataChanged( index(m_current), index(m_current), { Qt::CheckStateRole } );
+        }
         break;
+    }
     case VLC_VAR_DELCHOICE:
     {
         int i = 0;
@@ -179,6 +221,14 @@ void VLCVarChoiceModel::onListUpdated(const vlc_object_t* object, int action, QV
             m_values.removeAt(i);
             m_titles.removeAt(i);
             endRemoveRows();
+            // The current row moves up with the rows after the removed one.
+            if ( i == m_current )
+            {
+                m_current = -1;
+                emit hasCurrentChanged( false );
+            }
+            else if ( i < m_current )
+                m_current--;
         }
         break;
     }
@@ -187,6 +237,11 @@ void VLCVarChoiceModel::onListUpdated(const vlc_object_t* object, int action, QV
         m_values.clear();
         m_titles.clear();
         endResetModel();
+        if ( m_current != -1 )
+        {
+            m_current = -1;
+            emit hasCurrentChanged( false );
+        }
         break;
     default:
         //N/A
