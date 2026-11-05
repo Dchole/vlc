@@ -31,7 +31,9 @@ T.Button {
         padding: theme.dp(8)
         implicitWidth: Math.min(theme.dp(320), captionText.implicitWidth + leftPadding + rightPadding)
         implicitHeight: captionText.implicitHeight + topPadding + bottomPadding
-        Component.onCompleted: if (popupType !== undefined) popupType = 0 // Popup.Item
+        // Through the id: a name Qt does not know yet (popupType is Qt 6.8)
+        // would be a ReferenceError, a property it does not have is undefined.
+        Component.onCompleted: if (captionTip.popupType !== undefined) captionTip.popupType = 0 // Popup.Item
         contentItem: Text { id: captionText; text: captionTip.text; color: theme.bright; font.pixelSize: theme.dp(14); wrapMode: Text.WordWrap }
         background: Rectangle { color: theme.field; border.color: theme.border; radius: theme.dp(4) }
     }

@@ -54,7 +54,8 @@ Item {
                 padding: theme.dp(8)
                 implicitWidth: Math.min(theme.dp(320), helpText.implicitWidth + leftPadding + rightPadding)
                 implicitHeight: helpText.implicitHeight + topPadding + bottomPadding
-                Component.onCompleted: if (popupType !== undefined) popupType = 0 // Popup.Item
+                // Through the id, see RedesignButton.qml.
+                Component.onCompleted: if (helpTip.popupType !== undefined) helpTip.popupType = 0 // Popup.Item
                 contentItem: Text { id: helpText; text: helpTip.text; color: theme.bright; font.pixelSize: theme.dp(14); wrapMode: Text.WordWrap }
                 background: Rectangle { color: theme.field; border.color: theme.border; radius: theme.dp(4) }
             }

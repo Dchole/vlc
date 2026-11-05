@@ -354,9 +354,11 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   Player, Settings and About from the menu, and Shift+F1, which now opens
   About as the design says. The rest of VLC's menus is in the menu bar,
   F10.
-- `RedesignButton.qml` and `RedesignPreferenceRow.qml` log
-  `popupType is not defined`: `Popup.popupType` is newer than Qt 6.4. The
-  popups themselves were not tried.
+- Before the fix, `RedesignButton.qml` and `RedesignPreferenceRow.qml`
+  logged `popupType is not defined`: `Popup.popupType` is newer than
+  Qt 6.4, and a bare unknown name is a ReferenceError. Read through the id
+  of the popup it is `undefined` instead; with the preferences open the log
+  has no QML error or warning left.
 - A click on the video toggles pause: focus the window with
   `xdotool windowactivate` before sending keys in a test.
 
