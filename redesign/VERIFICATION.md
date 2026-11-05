@@ -295,6 +295,34 @@ the image of the "debian" job of VLC's CI, with its libraries and Qt.
   a real desktop. The changes to the Direct3D 11 output are for Windows only;
   flip and rotate use other code on Linux and were not tried there.
 
+## Linux, native build (2026-11-05)
+
+Ubuntu 24.04 with its Qt 6.4.2, built natively (packages in `README.md`),
+run on Xvfb with openbox and Mesa's software OpenGL through
+`redesign/tools/drive-linux.sh` and `shot-linux.sh`, driven with xdotool.
+The clip is a 5 minute color-bar video made with ffmpeg.
+
+- Before the fix, every start after the first quit by itself a few seconds
+  after the window came up: the cached graphics api starts an asynchronous
+  rhi probe holding a `QEventLoopLocker`, and with Qt before 6.7 releasing it
+  quits the application. Upstream's `setQuitLockEnabled(false)` was
+  backported; three starts in a row then stayed up, and Ctrl+Q and SIGTERM
+  still quit.
+- Full screen (F key): with the pointer still, both bars are hidden; moving
+  it brings both up and they leave after `mouse-hide-timeout`.
+- Before the fix, the pointer resting on the top bar outside its buttons let
+  both bars go after the timeout; only the control bar kept them. Seen after
+  the fix: the pointer resting 4 s on the middle of the top bar keeps both
+  bars, and moving it back over the video lets them go.
+- Seen with `--no-qt-pin-controls` in a window: the video fills the window,
+  the bars come over it with their gradients and leave after the timeout.
+  There is no switch for this in the player yet.
+- `RedesignButton.qml` and `RedesignPreferenceRow.qml` log
+  `popupType is not defined`: `Popup.popupType` is newer than Qt 6.4. The
+  popups themselves were not tried.
+- A click on the video toggles pause: focus the window with
+  `xdotool windowactivate` before sending keys in a test.
+
 ## Build and test environment
 
 - Use `make` for changes to `src/` or the D3D11 output module; use `qt` for

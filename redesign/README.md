@@ -77,7 +77,7 @@ mkdir ../vlc-build && cd ../vlc-build && ../vlc/configure && make -j"$(nproc)"
 back.
 
 On a machine without a screen (a server or a cloud container), add `xvfb
-xdotool imagemagick` and let `redesign/tools/shot-linux.sh` start the player
+xdotool imagemagick openbox` and let `redesign/tools/shot-linux.sh` start the player
 in memory and take a picture of its window:
 
 ```sh
@@ -85,6 +85,17 @@ ffmpeg -f lavfi -i testsrc2=size=1280x720:rate=30:duration=60 \
   -f lavfi -i sine=duration=60 -pix_fmt yuv420p -shortest \
   redesign/tools/Videos/clip-m.mp4
 redesign/tools/shot-linux.sh /tmp/player.png redesign/tools/Videos/clip-m.mp4
+```
+
+To click and type into it instead, `redesign/tools/drive-linux.sh start`
+leaves the player running on display `:96` (with openbox as window manager
+when it is installed, which full screen needs) until `drive-linux.sh stop`:
+
+```sh
+redesign/tools/drive-linux.sh start redesign/tools/Videos/clip-m.mp4
+DISPLAY=:96 xdotool key f
+DISPLAY=:96 import -window root /tmp/fullscreen.png
+redesign/tools/drive-linux.sh stop
 ```
 
 From Windows, the same can be done in VideoLAN's Debian image, to see that a
