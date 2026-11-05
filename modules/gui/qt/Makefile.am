@@ -1210,6 +1210,7 @@ libqml_module_player_a_QML = \
 	player/qml/redesign/RedesignButton.qml \
 	player/qml/redesign/RedesignIcon.qml \
 	player/qml/redesign/RedesignMenu.qml \
+	player/qml/redesign/RedesignNetworkStreamWindow.qml \
 	player/qml/redesign/RedesignTheme.qml \
 	player/qml/PlaybackSpeed.qml \
 	player/qml/LyricsFlickable.qml \

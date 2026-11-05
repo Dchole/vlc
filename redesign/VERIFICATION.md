@@ -354,6 +354,16 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   Player, Settings and About from the menu, and Shift+F1, which now opens
   About as the design says. The rest of VLC's menus is in the menu bar,
   F10.
+- Open Network Stream (`RedesignNetworkStreamWindow.qml`, Figma
+  6216:13614). Seen: Ctrl+N opens it with the layout of the design, Save
+  stays dimmed until a link is typed; two links on two lines, saved with
+  the button, close the window, play the first and leave both in the queue
+  ("2 items"). Tab leaves the links for the next field. The links were
+  local `file://` ones, the container has no stream to open. Without a
+  media library the playlist name is disabled with a line that says why;
+  saving a named playlist (`MLPlaylistListModel.create`) was not tried.
+- `MainDisplay.qml` logged `scaleAxis is not defined` at every start, the
+  same bare-name test as below for a Qt 6.5 property; fixed the same way.
 - Before the fix, `RedesignButton.qml` and `RedesignPreferenceRow.qml`
   logged `popupType is not defined`: `Popup.popupType` is newer than
   Qt 6.4, and a bare unknown name is a ReferenceError. Read through the id

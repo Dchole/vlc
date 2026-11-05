@@ -47,6 +47,7 @@ Item {
 
     // The preferences, a window of their own that DialogsProvider asks for
     RedesignPreferencesWindow { }
+    RedesignNetworkStreamWindow { }
 
     property bool _extendedFrameVisible: MainCtx.windowSuportExtendedFrame
                                       && MainCtx.clientSideDecoration

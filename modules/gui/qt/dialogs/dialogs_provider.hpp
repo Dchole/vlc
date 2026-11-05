@@ -291,6 +291,8 @@ signals:
     void showRedesignPreferences();
     // The keyboard shortcuts of the redesign's preferences, from the main menu.
     void showRedesignShortcuts();
+    // "Open Network Stream" of the redesign, RedesignNetworkStreamWindow.qml.
+    void showRedesignNetworkStream();
     void showToolbarEditorDialog();
 
     //visiblity signal

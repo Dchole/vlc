@@ -673,6 +673,14 @@ void DialogsProvider::openDiscDialog()
 }
 void DialogsProvider::openNetDialog()
 {
+    // The main interface has a dialog of its own, see
+    // RedesignNetworkStreamWindow.qml.
+    if( p_intf->p_mi )
+    {
+        emit showRedesignNetworkStream();
+        return;
+    }
+
     openDialog( OpenDialog::OPEN_NETWORK_TAB );
 }
 void DialogsProvider::openCaptureDialog()

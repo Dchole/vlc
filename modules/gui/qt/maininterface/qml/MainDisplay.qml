@@ -139,7 +139,8 @@ FocusScope {
         target: null
 
         // Qt version check in disguise, only available starting with 6.5:
-        enabled: !!scaleAxis?.activeValueChanged
+        // (through the id: a bare unknown name is a ReferenceError, not undefined)
+        enabled: !!interfaceScalePinchHandler.scaleAxis?.activeValueChanged
 
         // Default in QPlatformTheme::defaultThemeHint is 10
         dragThreshold: ((Application.styleHints?.startDragDistance ?? 10) * 4)
