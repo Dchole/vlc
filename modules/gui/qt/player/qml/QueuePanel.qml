@@ -22,6 +22,7 @@ import QtQuick.Layouts
 import VLC.MainInterface
 import VLC.Style
 import VLC.Playlist
+import VLC.Player
 import VLC.Widgets as Widgets
 import VLC.Dialogs
 import VLC.Util
@@ -32,12 +33,25 @@ PlayerPanel {
     id: root
 
     enum Tab {
-        Queue
+        Queue,
+        Bookmarks,
+        Chapters
     }
 
+    // Figma 6321:14024: the queue, the bookmarks and the chapters of what
+    // plays, side by side.
     tabs: [
-        { icon: VLCIcons.queue, text: qsTr("Queue") }
+        { icon: VLCIcons.queue, text: qsTr("Queue") },
+        { icon: VLCIcons.bookmarks, text: qsTr("Bookmarks") },
+        { icon: VLCIcons.chapters, text: qsTr("Chapters") }
     ]
+
+    // The bookmarks are kept by the media library: its QML module only
+    // exists when there is one.
+    readonly property var _bookmarks: MainCtx.mediaLibraryAvailable
+        ? Qt.createQmlObject("import VLC.MediaLibrary; import VLC.Player; MLBookmarkModel { ml: MediaLib; player: Player }",
+                             root, "bookmarks")
+        : null
 
     // A queue is long: the panel takes the height there is.
     preferredHeight: VLCStyle.dp(946, VLCStyle.scale)
@@ -414,6 +428,166 @@ PlayerPanel {
                 radius: height / 2
 
                 color: root.accentColor
+            }
+        }
+    }
+
+    // Bookmarks
+    ColumnLayout {
+        spacing: 0
+
+        Item {
+            Layout.fillWidth: true
+
+            implicitHeight: VLCStyle.dp(64, VLCStyle.scale)
+
+            T.Label {
+                anchors.verticalCenter: parent.verticalCenter
+
+                x: VLCStyle.dp(28, VLCStyle.scale)
+                width: parent.width - x - VLCStyle.dp(64, VLCStyle.scale)
+
+                text: root._bookmarks ? qsTr("Bookmarks of what plays")
+                                      : qsTr("Bookmarks are kept by the media library, which is not available.")
+                wrapMode: Text.WordWrap
+                font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+                color: root.dimColor
+            }
+
+            HeadButton {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.right: parent.right
+                anchors.rightMargin: VLCStyle.dp(20, VLCStyle.scale)
+
+                visible: !!root._bookmarks
+                enabled: Player.isPlaying || Player.playingState === Player.PLAYING_STATE_PAUSED
+
+                text: VLCIcons.add
+                description: qsTr("Add a bookmark here")
+
+                onClicked: root._bookmarks.add()
+            }
+        }
+
+        TimedList {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            model: root._bookmarks
+            emptyText: root._bookmarks ? qsTr("No bookmark yet.") : ""
+
+            timeOf: (row) => row.time
+            onPicked: (index) => root._bookmarks.select(root._bookmarks.index(index, 0))
+        }
+    }
+
+    // Chapters
+    TimedList {
+        topMargin: VLCStyle.dp(20, VLCStyle.scale)
+
+        model: Player.chapters
+        emptyText: qsTr("What plays has no chapters.")
+
+        // 00:00 for the first chapter, not "0 ms"
+        timeOf: (row) => row.time.formatHMS(0)
+        onPicked: (index) => Player.chapters.selectChapter(index)
+    }
+
+    // A list of numbered rows, a name and a time (Figma 6321:14068): the
+    // current one in the accent color.
+    component TimedList: ListView {
+        id: timedList
+
+        // The text of the time of a row, from its roles
+        required property var timeOf
+        property string emptyText
+
+        signal picked(int index)
+
+        leftMargin: VLCStyle.dp(20, VLCStyle.scale)
+        rightMargin: leftMargin
+        bottomMargin: VLCStyle.dp(20, VLCStyle.scale)
+
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        spacing: VLCStyle.dp(12, VLCStyle.scale)
+
+        Accessible.role: Accessible.List
+
+        T.Label {
+            anchors.centerIn: parent
+            width: parent.width - 2 * VLCStyle.dp(28, VLCStyle.scale)
+
+            visible: timedList.count === 0
+            text: timedList.emptyText
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+            font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+            color: root.dimColor
+        }
+
+        // Explicitly a Component: Qt 6.4 does not make one of an object
+        // given to a component property inside an inline component.
+        delegate: Component {
+            T.AbstractButton {
+                id: row
+
+                required property int index
+                required property var model
+
+                readonly property bool current: !!model.checked
+
+                width: ListView.view.width - ListView.view.leftMargin - ListView.view.rightMargin
+                height: VLCStyle.dp(32, VLCStyle.scale)
+
+                text: model.display ?? model.name ?? ""
+
+                Accessible.name: text
+
+                onClicked: timedList.picked(index)
+
+                readonly property color _color: current ? root.accentColor
+                                                        : (row.hovered ? root.hoverColor : root.textColor)
+
+                background: Rectangle {
+                    radius: VLCStyle.dp(4, VLCStyle.scale)
+                    color: row.hovered ? root.wellColor : "transparent"
+                }
+
+                contentItem: Item {
+                    T.Label {
+                        x: VLCStyle.dp(4, VLCStyle.scale)
+                        width: VLCStyle.dp(34, VLCStyle.scale)
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        text: row.index + 1
+                        font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+                        color: row.current ? root.accentColor : root.dimColor
+                    }
+
+                    T.Label {
+                        x: VLCStyle.dp(48, VLCStyle.scale)
+                        width: time.x - x - VLCStyle.dp(10, VLCStyle.scale)
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        text: row.text
+                        elide: Text.ElideRight
+                        font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+                        color: row._color
+                    }
+
+                    T.Label {
+                        id: time
+
+                        anchors.right: parent.right
+                        anchors.rightMargin: VLCStyle.dp(4, VLCStyle.scale)
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        text: timedList.timeOf(row.model)
+                        font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+                        color: row.current ? root.accentColor : root.dimColor
+                    }
+                }
             }
         }
     }

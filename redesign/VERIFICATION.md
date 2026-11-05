@@ -362,6 +362,19 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   local `file://` ones, the container has no stream to open. Without a
   media library the playlist name is disabled with a line that says why;
   saving a named playlist (`MLPlaylistListModel.create`) was not tried.
+- Queue panel tabs: Queue, Bookmarks and Chapters, as in the "chapters"
+  variant of the control bar (Figma 6321:14024). Seen with a clip that has
+  five chapters (made with ffmpeg): the Chapters tab lists them numbered,
+  with their names and start times (00:00, 00:40, 01:30, 02:30, 03:40),
+  the playing one in the accent color from the start; a click on Summer
+  plays from 01:30 and marks it. Without a media library the Bookmarks tab
+  says that the library keeps them; its list and add button
+  (`MLBookmarkModel`) were not seen.
+- Before the fix the chapter list gave its start times as times of the
+  clock: the first chapter's 0 was invalid ("--:--") and the others a
+  second early (00:39); they are durations now. The playing chapter was
+  not marked until another one was picked: the model now asks the player
+  when the title's chapters arrive.
 - Audio tab, with `VLC_AOUT=adummy` (an output that plays nothing) and a
   stereo clip. Seen: Stereo Mode lists Mono, Stereo, Left, Right and
   Reverse stereo; Reverse stereo stays chosen after the restart of the
