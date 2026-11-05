@@ -1057,6 +1057,13 @@ FocusScope {
             rootPlayer.lockUnlockAutoHide(lock)
         }
 
+        // Like the control bar, the top bar stays while the pointer is on
+        // it, not only on its buttons: over the video in full screen both
+        // bars come up together and either one keeps them.
+        HoverHandler {
+            onHoveredChanged: rootPlayer.lockUnlockAutoHide(hovered)
+        }
+
         onBackRequested: {
             if (MainCtx.hasEmbededVideo && !MainCtx.canShowVideoPIP) {
                MainPlaylistController.stop()
