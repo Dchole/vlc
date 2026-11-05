@@ -68,6 +68,8 @@
 #include <QInputDialog>
 #include <QPointer>
 #include <QMessageBox>
+#include <QCursor>
+#include <QWindow>
 
 #define I_OP_DIR_WINTITLE I_DIR_OR_FOLDER( N_("Open Directory"), \
                                            N_("Open Folder") )
@@ -207,6 +209,23 @@ void DialogsProvider::customEvent( QEvent *event )
         {
            popupMenu.reset();
            bool show = (de->i_arg != 0);
+
+           // The player view of the redesign shows the menu of the video
+           // itself.
+           MainCtx *mi = p_intf->p_mi;
+           if( mi && mi->playerContextMenu() )
+           {
+              QPointF position;
+              if( show )
+              {
+                 emit releaseMouseEvents();
+                 if( QWindow *window = mi->intfMainWindow() )
+                    position = window->mapFromGlobal( QCursor::pos() );
+              }
+              emit mi->playerContextMenuRequested( show, position );
+              break;
+           }
+
            if( show )
            {
               //popping a QMenu prevents mouse release events to be received,

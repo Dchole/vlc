@@ -125,6 +125,9 @@ class MainCtx : public QObject
     // "Hide UI" of the redesign: in a window, the bars leave the video
     // as they do in full screen. Not saved, it lasts until VLC quits.
     Q_PROPERTY(bool hideInterface READ hideInterface WRITE setHideInterface NOTIFY hideInterfaceChanged FINAL)
+    // Set by the player view while it shows the menu of the video itself,
+    // see playerContextMenuRequested().
+    Q_PROPERTY(bool playerContextMenu MEMBER m_playerContextMenu FINAL)
     Q_PROPERTY(ControlbarProfileModel* controlbarProfileModel READ controlbarProfileModel CONSTANT FINAL)
     Q_PROPERTY(bool hasAcrylicSurface READ hasAcrylicSurface NOTIFY hasAcrylicSurfaceChanged FINAL)
     Q_PROPERTY(bool smoothScroll READ smoothScroll NOTIFY smoothScrollChanged FINAL)
@@ -255,6 +258,7 @@ public:
     inline bool pinVideoControls() const { return m_pinVideoControls; }
     inline float pinOpacity() const { return m_pinOpacity; }
     inline bool hideInterface() const { return m_hideInterface; }
+    inline bool playerContextMenu() const { return m_playerContextMenu; }
 
     inline ControlbarProfileModel* controlbarProfileModel() const { return m_controlbarProfileModel; }
     inline QUrl getDialogFilePath() const { return m_dialogFilepath; }
@@ -475,6 +479,7 @@ protected:
     bool                 m_pinVideoControls = false;
     float                m_pinOpacity       = 1.0f;
     bool                 m_hideInterface    = false;
+    bool                 m_playerContextMenu = false;
 
     bool                 m_useGlobalShortcuts = true;
     QUrl                 m_dialogFilepath; /* Last path used in dialogs */
@@ -610,6 +615,9 @@ signals:
     void pinVideoControlsChanged();
     void pinOpacityChanged();
     void hideInterfaceChanged();
+    // The menu of the video is asked for (a right click on it), at
+    // `position` in the window, or to be closed.
+    void playerContextMenuRequested(bool show, QPointF position);
 
     void hasAcrylicSurfaceChanged(bool);
 

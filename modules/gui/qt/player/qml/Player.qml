@@ -101,6 +101,10 @@ FocusScope {
     Component.onCompleted: {
         MainCtx.preferHotkeys = true
 
+        // The right click on the video opens videoMenu, not the menu of
+        // the dialogs provider.
+        MainCtx.playerContextMenu = true
+
         // A queue that is open in the library does not come up over the
         // video by itself.
         _queueHeld = MainCtx.playqueuePanel.visible
@@ -108,6 +112,7 @@ FocusScope {
     Component.onDestruction: {
         _leaving = true
         MainCtx.preferHotkeys = false
+        MainCtx.playerContextMenu = false
     }
 
     Keys.priority: Keys.AfterItem
@@ -1310,6 +1315,216 @@ FocusScope {
         id: audioContextMenu
 
         ctx: MainCtx
+    }
+
+    // The menu of the video, from the redesign (Figma 6065:13616). The core
+    // asks for it on a right click, MainCtx brings that here.
+
+    // A hotkey of VLC as the menu shows it: "Shift+r" is "Shift + R". The
+    // first one where there are several.
+    function _hotkeyText(option: string) : string {
+        const keys = MainCtx.option(option)
+        if (typeof keys !== "string" || keys.length === 0)
+            return ""
+        return keys.split("\t")[0].split("+")
+                   .map((key) => (key.length === 1) ? key.toUpperCase() : key)
+                   .join(" + ")
+    }
+
+    // The settings panel the menu opens on one of its tabs, apart from the
+    // one of the settings button.
+    Loader {
+        id: menuSettingsLoader
+
+        active: false
+
+        sourceComponent: SettingsPanel {
+            onOpened: rootPlayer.lockUnlockAutoHide(true)
+            onClosed: rootPlayer.lockUnlockAutoHide(false)
+        }
+
+        onLoaded: item.colorContext.palette = Qt.binding(() => windowTheme.palette)
+    }
+
+    function _openSettings(tab: int) {
+        menuSettingsLoader.active = true
+        menuSettingsLoader.item._closedAt = 0
+        menuSettingsLoader.item.toggle(tab)
+    }
+
+    Connections {
+        target: MainCtx
+
+        function onPlayerContextMenuRequested(show: bool, position: point) {
+            if (!show) {
+                videoMenu.dismiss()
+                return
+            }
+            const point = rootPlayer.mapFromItem(null, position.x, position.y)
+            videoMenu.popup(rootPlayer, point.x, point.y)
+        }
+    }
+
+    RedesignMenu {
+        id: videoMenu
+
+        readonly property string _icons: "qrc:///redesign/menu/"
+        readonly property bool _playing: Player.playingState === Player.PLAYING_STATE_PLAYING
+
+        dark: windowTheme.palette.isDark
+
+        // While it is open, the keys move in the menu rather than being
+        // hotkeys of the player.
+        onOpened: {
+            rootPlayer.lockUnlockAutoHide(true)
+            MainCtx.preferHotkeys = false
+        }
+        onClosed: {
+            rootPlayer.lockUnlockAutoHide(false)
+            if (!rootPlayer._leaving)
+                MainCtx.preferHotkeys = true
+        }
+
+        T.Action {
+            property string shortcutText: (videoMenu.opened, rootPlayer._hotkeyText("key-play-pause"))
+            text: videoMenu._playing ? qsTr("Pause") : qsTr("Play")
+            icon.source: videoMenu._icons + (videoMenu._playing ? "pause-two-tone.svg" : "playback-two-tone.svg")
+            onTriggered: MainPlaylistController.togglePlayPause()
+        }
+
+        T.Action {
+            property string shortcutText: (videoMenu.opened, rootPlayer._hotkeyText("key-stop"))
+            text: qsTr("Stop")
+            icon.source: videoMenu._icons + "stop-two-tone.svg"
+            onTriggered: MainPlaylistController.stop()
+        }
+
+        T.Action {
+            property string shortcutText: (videoMenu.opened, rootPlayer._hotkeyText("key-prev"))
+            text: qsTr("Previous Item")
+            icon.source: videoMenu._icons + "previous-two-tone.svg"
+            enabled: MainPlaylistController.hasPrev
+            onTriggered: MainPlaylistController.prev()
+        }
+
+        T.Action {
+            property string shortcutText: (videoMenu.opened, rootPlayer._hotkeyText("key-next"))
+            text: qsTr("Next Item")
+            icon.source: videoMenu._icons + "next-two-tone.svg"
+            enabled: MainPlaylistController.hasNext
+            onTriggered: MainPlaylistController.next()
+        }
+
+        T.Action {
+            property string shortcutText: (videoMenu.opened, rootPlayer._hotkeyText("key-record"))
+            text: Player.recording ? qsTr("Stop Recording") : qsTr("Record")
+            icon.source: videoMenu._icons + (Player.recording ? "record-active.svg" : "record-two-tone.svg")
+            onTriggered: Player.toggleRecord()
+        }
+
+        T.Action {
+            property bool divider: true
+            property string shortcutText: "Ctrl + \\"
+            text: MainCtx.hideInterface ? qsTr("Show UI") : qsTr("Hide UI")
+            icon.source: videoMenu._icons + "ui.svg"
+            enabled: MainCtx.intfMainWindow.visibility !== Window.FullScreen
+            onTriggered: MainCtx.hideInterface = !MainCtx.hideInterface
+        }
+
+        // The four tabs of the settings panel, as its button opens them.
+        T.Action {
+            property bool divider: true
+            property bool arrow: true
+            text: qsTr("Playback")
+            icon.source: videoMenu._icons + "playback-selected-two-tone.svg"
+            onTriggered: rootPlayer._openSettings(SettingsPanel.Tab.Playback)
+        }
+
+        T.Action {
+            property bool arrow: true
+            text: qsTr("Video")
+            icon.source: videoMenu._icons + "video-two-tone.svg"
+            onTriggered: rootPlayer._openSettings(SettingsPanel.Tab.Video)
+        }
+
+        T.Action {
+            property bool arrow: true
+            text: qsTr("Audio")
+            icon.source: videoMenu._icons + "audio-two-tone.svg"
+            onTriggered: rootPlayer._openSettings(SettingsPanel.Tab.Audio)
+        }
+
+        T.Action {
+            property bool arrow: true
+            text: qsTr("Subtitle")
+            icon.source: videoMenu._icons + "subtitles-two-tone.svg"
+            onTriggered: rootPlayer._openSettings(SettingsPanel.Tab.Subtitles)
+        }
+
+        T.Action {
+            property bool divider: true
+            property bool arrow: true
+            text: qsTr("More Settings")
+            icon.source: videoMenu._icons + "settings-two-tone.svg"
+            onTriggered: DialogsProvider.prefsDialog()
+        }
+
+        T.Action {
+            property bool arrow: true
+            text: qsTr("Playlist")
+            icon.source: videoMenu._icons + "playlist-two-tone.svg"
+            onTriggered: MainCtx.playqueuePanel.visible = !MainCtx.playqueuePanel.visible
+        }
+
+        // The entries of the redesign's main menu that open media
+        // (Figma 6062:13354); their shortcuts are in GlobalShortcuts.qml.
+        RedesignMenu {
+            title: qsTr("Open Media")
+            iconSource: videoMenu._icons + "file-two-tone.svg"
+            dark: videoMenu.dark
+
+            T.Action {
+                property string shortcutText: "Ctrl + O"
+                text: qsTr("Open File(s)")
+                icon.source: videoMenu._icons + "file-two-tone.svg"
+                onTriggered: DialogsProvider.simpleOpenDialog()
+            }
+
+            T.Action {
+                property string shortcutText: "Ctrl + F"
+                text: qsTr("Open Folder")
+                icon.source: videoMenu._icons + "folder-two-tone.svg"
+                onTriggered: DialogsProvider.PLOpenDir()
+            }
+
+            T.Action {
+                property string shortcutText: "Ctrl + N"
+                text: qsTr("Open Network Stream")
+                icon.source: videoMenu._icons + "streaming-two-tone.svg"
+                onTriggered: DialogsProvider.openNetDialog()
+            }
+
+            T.Action {
+                property string shortcutText: "Ctrl + D"
+                text: qsTr("Open Disc")
+                icon.source: videoMenu._icons + "disc-two-tone.svg"
+                onTriggered: DialogsProvider.openDiscDialog()
+            }
+
+            T.Action {
+                property string shortcutText: "Ctrl + C"
+                text: qsTr("Open Capture Device")
+                icon.source: videoMenu._icons + "capture-device-two-tone.svg"
+                onTriggered: DialogsProvider.openCaptureDialog()
+            }
+        }
+
+        T.Action {
+            property string shortcutText: "Ctrl + Q"
+            text: qsTr("Quit VLC")
+            icon.source: videoMenu._icons + "quit-two-tone.svg"
+            onTriggered: DialogsProvider.quit()
+        }
     }
 
     TapHandler {

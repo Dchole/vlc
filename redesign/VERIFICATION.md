@@ -325,6 +325,25 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   the pointer and the state across a restart (it is not saved) were not
   tried. The 16:9 clip leaves black bands above and below in the taller
   frame.
+- Right-click menu (`RedesignMenu.qml`, `design/right-click-menu.png`).
+  Seen: a right click on the video opens it at the pointer instead of the
+  menu of the dialogs provider, with the entries, icons, lines and arrows of
+  the design. Play reads Pause while playing, Previous and Next Item are
+  dimmed with one item in the queue, the shortcuts are those of VLC's
+  hotkeys (Record shows Shift + R, the design R). Hovering Open Media
+  opens its submenu next to it, kept in the window. Choosing Audio, or
+  Video with the keys, opens the settings panel on that tab; choosing
+  Hide UI hides the bars and the entry then reads Show UI. Down and Return
+  move in the menu instead of changing the volume, and are hotkeys again
+  once it is closed.
+- Before the fix, the keys went to the player while the menu was open: an
+  item without visual focus does not keep them from `preferHotkeys`, which
+  the menu now turns off while it is open.
+- Not tried: Stop, Record, More Settings, Playlist, the Open Media entries
+  and Quit VLC from the menu, the light palette, a right click in full
+  screen. The arrows of Playback, Video, Audio, Subtitle, More Settings and
+  Playlist are those of the design; only Open Media has a submenu, the
+  others open a panel or a window.
 - `RedesignButton.qml` and `RedesignPreferenceRow.qml` log
   `popupType is not defined`: `Popup.popupType` is newer than Qt 6.4. The
   popups themselves were not tried.

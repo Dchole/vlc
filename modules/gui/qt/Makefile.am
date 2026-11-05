@@ -793,6 +793,27 @@ ui_%.h: %.ui
 # Resources
 
 libqt_plugin_la_RES = \
+	pixmaps/redesign/menu/audio-two-tone.svg \
+	pixmaps/redesign/menu/capture-device-two-tone.svg \
+	pixmaps/redesign/menu/chevron-right.svg \
+	pixmaps/redesign/menu/disc-two-tone.svg \
+	pixmaps/redesign/menu/file-two-tone.svg \
+	pixmaps/redesign/menu/folder-two-tone.svg \
+	pixmaps/redesign/menu/next-two-tone.svg \
+	pixmaps/redesign/menu/pause-two-tone.svg \
+	pixmaps/redesign/menu/playback-selected-two-tone.svg \
+	pixmaps/redesign/menu/playback-two-tone.svg \
+	pixmaps/redesign/menu/playlist-two-tone.svg \
+	pixmaps/redesign/menu/previous-two-tone.svg \
+	pixmaps/redesign/menu/quit-two-tone.svg \
+	pixmaps/redesign/menu/record-active.svg \
+	pixmaps/redesign/menu/record-two-tone.svg \
+	pixmaps/redesign/menu/settings-two-tone.svg \
+	pixmaps/redesign/menu/stop-two-tone.svg \
+	pixmaps/redesign/menu/streaming-two-tone.svg \
+	pixmaps/redesign/menu/subtitles-two-tone.svg \
+	pixmaps/redesign/menu/ui.svg \
+	pixmaps/redesign/menu/video-two-tone.svg \
 	pixmaps/VLCIcons.ttf \
 	pixmaps/addons/addon_default.svg \
 	pixmaps/addons/addon_broken.svg \
@@ -1181,6 +1202,7 @@ libqml_module_player_a_QML = \
 	player/qml/redesign/RedesignShortcuts.qml \
 	player/qml/redesign/RedesignButton.qml \
 	player/qml/redesign/RedesignIcon.qml \
+	player/qml/redesign/RedesignMenu.qml \
 	player/qml/redesign/RedesignTheme.qml \
 	player/qml/PlaybackSpeed.qml \
 	player/qml/LyricsFlickable.qml \

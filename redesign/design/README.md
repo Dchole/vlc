@@ -21,3 +21,10 @@ queried at will (the Figma MCP server allows 20 calls a month on a free plan).
   `3328:11554` ("Player - hide UI"): the video alone in its frame, round
   corners on all four sides. "Hide UI" itself, with `Ctrl+\`, is an entry of
   the right-click menu, node `6077:14294` in `figma-nodes.xml`.
+- `right-click-menu.png`: the menu of the video, node `6065:13616`, at its
+  size of 292x683. Background `#191919`, texts `#8F8F8F`, shortcuts
+  `#6B6B6B`, lines `#1D1D1D`, sampled from the picture. Its icons are the
+  two-tone ones of `icons/figma`, copied to
+  `modules/gui/qt/pixmaps/redesign/menu` (`pause-two-tone.svg` is
+  `pause.svg` in the orange of the others). "Open Media" lists the open
+  entries of the main menu, node `6062:13354`.

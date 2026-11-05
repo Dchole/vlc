@@ -134,4 +134,27 @@
         <file alias="addon_red.svg">pixmaps/addons/addon_red.svg</file>
         <file alias="addon_yellow.svg">pixmaps/addons/addon_yellow.svg</file>
     </qresource>
+    <qresource prefix="/redesign/menu">
+        <file alias="audio-two-tone.svg">pixmaps/redesign/menu/audio-two-tone.svg</file>
+        <file alias="capture-device-two-tone.svg">pixmaps/redesign/menu/capture-device-two-tone.svg</file>
+        <file alias="chevron-right.svg">pixmaps/redesign/menu/chevron-right.svg</file>
+        <file alias="disc-two-tone.svg">pixmaps/redesign/menu/disc-two-tone.svg</file>
+        <file alias="file-two-tone.svg">pixmaps/redesign/menu/file-two-tone.svg</file>
+        <file alias="folder-two-tone.svg">pixmaps/redesign/menu/folder-two-tone.svg</file>
+        <file alias="next-two-tone.svg">pixmaps/redesign/menu/next-two-tone.svg</file>
+        <file alias="pause-two-tone.svg">pixmaps/redesign/menu/pause-two-tone.svg</file>
+        <file alias="playback-selected-two-tone.svg">pixmaps/redesign/menu/playback-selected-two-tone.svg</file>
+        <file alias="playback-two-tone.svg">pixmaps/redesign/menu/playback-two-tone.svg</file>
+        <file alias="playlist-two-tone.svg">pixmaps/redesign/menu/playlist-two-tone.svg</file>
+        <file alias="previous-two-tone.svg">pixmaps/redesign/menu/previous-two-tone.svg</file>
+        <file alias="quit-two-tone.svg">pixmaps/redesign/menu/quit-two-tone.svg</file>
+        <file alias="record-active.svg">pixmaps/redesign/menu/record-active.svg</file>
+        <file alias="record-two-tone.svg">pixmaps/redesign/menu/record-two-tone.svg</file>
+        <file alias="settings-two-tone.svg">pixmaps/redesign/menu/settings-two-tone.svg</file>
+        <file alias="stop-two-tone.svg">pixmaps/redesign/menu/stop-two-tone.svg</file>
+        <file alias="streaming-two-tone.svg">pixmaps/redesign/menu/streaming-two-tone.svg</file>
+        <file alias="subtitles-two-tone.svg">pixmaps/redesign/menu/subtitles-two-tone.svg</file>
+        <file alias="ui.svg">pixmaps/redesign/menu/ui.svg</file>
+        <file alias="video-two-tone.svg">pixmaps/redesign/menu/video-two-tone.svg</file>
+    </qresource>
 </RCC>
