@@ -495,10 +495,15 @@ static int aout_PrepareStereoMode(audio_output_t *aout,
     }
     var_Change(aout, "stereo-mode", VLC_VAR_ADDCHOICE, val, txt);
 
-    if (fmt->i_chan_mode & AOUT_CHANMODE_DUALMONO)
-        i_default_mode = AOUT_VAR_CHAN_LEFT;
-    else
-        i_default_mode = val.i_int; /* Stereo or Dolby Surround */
+    /* The mode the user asked for stays, through the restart that asking
+     * for it causes; the format decides only when nothing was asked. */
+    if (i_default_mode == AOUT_VAR_CHAN_UNSET)
+    {
+        if (fmt->i_chan_mode & AOUT_CHANMODE_DUALMONO)
+            i_default_mode = AOUT_VAR_CHAN_LEFT;
+        else
+            i_default_mode = val.i_int; /* Stereo or Dolby Surround */
+    }
 
     val.i_int = AOUT_VAR_CHAN_LEFT;
     var_Change(aout, "stereo-mode", VLC_VAR_ADDCHOICE, val, _("Left"));
