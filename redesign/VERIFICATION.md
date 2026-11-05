@@ -362,6 +362,12 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   local `file://` ones, the container has no stream to open. Without a
   media library the playlist name is disabled with a line that says why;
   saving a named playlist (`MLPlaylistListModel.create`) was not tried.
+- Inter: the interface loads Regular, Medium and SemiBold from its own
+  resources (`modules/gui/qt/pixmaps/fonts`, SIL OFL, `OFL.txt`) and makes
+  Inter the application font. Seen with the system's Inter removed from
+  fontconfig: before, the main menu was in DejaVu Sans; after, in Inter.
+  The texts of the design that are bold or larger were not compared one by
+  one.
 - `MainDisplay.qml` logged `scaleAxis is not defined` at every start, the
   same bare-name test as below for a Qt 6.5 property; fixed the same way.
 - Before the fix, `RedesignButton.qml` and `RedesignPreferenceRow.qml`

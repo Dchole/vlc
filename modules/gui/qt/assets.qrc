@@ -164,4 +164,9 @@
         <file alias="ui.svg">pixmaps/redesign/menu/ui.svg</file>
         <file alias="video-two-tone.svg">pixmaps/redesign/menu/video-two-tone.svg</file>
     </qresource>
+    <qresource prefix="/fonts">
+        <file alias="Inter-Regular.otf">pixmaps/fonts/Inter-Regular.otf</file>
+        <file alias="Inter-Medium.otf">pixmaps/fonts/Inter-Medium.otf</file>
+        <file alias="Inter-SemiBold.otf">pixmaps/fonts/Inter-SemiBold.otf</file>
+    </qresource>
 </RCC>

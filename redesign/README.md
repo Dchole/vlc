@@ -22,6 +22,10 @@ and a curated catalog based on the local Figma reference. The comparison,
 approved exceptions and missing rows are in [VERIFICATION.md](VERIFICATION.md)
 and [design/preferences-audit.md](design/preferences-audit.md).
 
+The interface font is [Inter](https://rsms.me/inter), by The Inter Project
+Authors, under the SIL Open Font License
+(`modules/gui/qt/pixmaps/fonts/OFL.txt`).
+
 This is an unofficial project, it is not affiliated with VideoLAN.
 
 ## Building on Windows

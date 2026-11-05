@@ -33,7 +33,7 @@ include ../../modulelist.mk
 
 SUFFIXES += .ui .h .hpp .moc.cpp .qml .js .mjs .moc
 TEST_EXTENSIONS = .qml
-EXTRA_DIST = qt6.pro qtest.pro quicktest.pro scripts
+EXTRA_DIST = qt6.pro qtest.pro quicktest.pro scripts pixmaps/fonts/OFL.txt
 vlc_qt_libs = $(QT_LIBS)
 RCC_EXTRA_PARAMS =
 
@@ -793,6 +793,9 @@ ui_%.h: %.ui
 # Resources
 
 libqt_plugin_la_RES = \
+	pixmaps/fonts/Inter-Regular.otf \
+	pixmaps/fonts/Inter-Medium.otf \
+	pixmaps/fonts/Inter-SemiBold.otf \
 	pixmaps/redesign/menu/audio-two-tone.svg \
 	pixmaps/redesign/menu/capture-device-two-tone.svg \
 	pixmaps/redesign/menu/check-active.svg \

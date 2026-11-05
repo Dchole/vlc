@@ -52,6 +52,8 @@ extern "C" char **environ;
 #endif
 
 #include <QApplication>
+#include <QFont>
+#include <QFontDatabase>
 #include <QDate>
 #include <QMutex>
 #include <QtQuickControls2/QQuickStyle>
@@ -1273,6 +1275,24 @@ static void *Thread( void *obj )
         }
     }
 #endif
+
+    /* Inter, the font of the redesign, comes with the interface
+     * (pixmaps/fonts, SIL Open Font License, see pixmaps/fonts/OFL.txt). */
+    {
+        bool interLoaded = false;
+        for( const char *file : { ":/fonts/Inter-Regular.otf",
+                                  ":/fonts/Inter-Medium.otf",
+                                  ":/fonts/Inter-SemiBold.otf" } )
+            interLoaded |= QFontDatabase::addApplicationFont( QString::fromLatin1( file ) ) >= 0;
+        if( interLoaded )
+        {
+            QFont font = QGuiApplication::font();
+            font.setFamily( QStringLiteral( "Inter" ) );
+            QGuiApplication::setFont( font );
+        }
+        else
+            msg_Warn( p_intf, "the Inter font could not be loaded" );
+    }
 
     app.setApplicationDisplayName( qtr("VLC media player") );
     app.setApplicationVersion( QString::fromUtf8(VERSION_MESSAGE) );
