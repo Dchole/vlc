@@ -72,7 +72,10 @@ open an issue or a pull request against `redesign`.
 ## Roadmap
 
 What the redesign consists of, in the order it is being built. A box is ticked
-once the part runs in the Windows build and was looked at there.
+once the part runs in the Windows build and was looked at there. "Seen on
+Linux" marks a part that was built and looked at in the native Linux build
+but not yet on Windows; what was seen is in
+[redesign/VERIFICATION.md](redesign/VERIFICATION.md).
 
 ### Player
 
@@ -88,7 +91,7 @@ once the part runs in the Windows build and was looked at there.
   - [x] Panel with its four tabs, delays and speeds
   - [x] Subtitles: delay, font, colors, size, outline, position, default track
   - [x] Audio: delay, default track, equalizer preset, filter switches, pitch
-  - [ ] Audio: stereo mode, equalizer bands, settings of each filter
+  - [ ] Audio: stereo mode, equalizer bands, settings of each filter (seen on Linux)
   - [ ] Video: flip, rotate, zoom, crop, aspect ratio, colors
     - [x] Negate Colors: visible activation and clean restoration on D3D11
     - [x] Image Adjust: live brightness slider and clean restoration
@@ -117,9 +120,13 @@ once the part runs in the Windows build and was looked at there.
   - [ ] The level while the pointer only rests on the cone: not seen yet, the
         tests have no real pointer
 - [ ] Bookmarks and chapters panels, subtitle timeline
-- [ ] Full screen: both bars on hover, an option to hide the interface
+  - [ ] Chapters tab next to the queue (seen on Linux)
+  - [ ] Bookmarks tab: needs the media library, not seen
+  - [ ] Subtitle timeline: VLC does not give the interface the times of the
+        subtitles yet
+- [ ] Full screen: both bars on hover, an option to hide the interface (seen on Linux)
 - [ ] Resume prompt next to the playback controls
-- [ ] Menus: the menu of the top bar, the right-click menu, two-tone icons
+- [ ] Menus: the menu of the top bar, the right-click menu, two-tone icons (seen on Linux)
 - [ ] Music: cover view, waveform seek bar
 
 ### Library
@@ -132,6 +139,8 @@ once the part runs in the Windows build and was looked at there.
 ### Dialogs
 
 - [ ] Open network stream, new playlist
+  - [ ] Open network stream (seen on Linux)
+  - [ ] New playlist: needs the media library
 - [ ] Add subtitles to a file, a folder or a playlist
 - [x] Keyboard shortcuts
   - [x] The nine reference actions, editing and saving, a conflict cancelled,
@@ -146,13 +155,13 @@ once the part runs in the Windows build and was looked at there.
         [redesign/VERIFICATION.md](redesign/VERIFICATION.md) and the
         [reference audit](redesign/design/preferences-audit.md)
 - [ ] Customize mode: move the controls around, profiles
-- [ ] Onboarding
+- [ ] Onboarding (seen on Linux)
 
 ### Loose ends
 
-- [ ] Inter as the font of the interface
+- [ ] Inter as the font of the interface (seen on Linux)
 - [ ] The build does not quit within a few seconds and can leave a process behind
-- [ ] "External Tracks" of the subtitles tab has no list of its own
+- [ ] "External Tracks" of the subtitles tab has no list of its own (fixed, seen on Linux)
 
 ---
 
