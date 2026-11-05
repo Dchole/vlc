@@ -289,6 +289,8 @@ signals:
     void releaseMouseEvents();
     // The preferences are asked for, of the interface that has its own
     void showRedesignPreferences();
+    // The keyboard shortcuts of the redesign's preferences, from the main menu.
+    void showRedesignShortcuts();
     void showToolbarEditorDialog();
 
     //visiblity signal

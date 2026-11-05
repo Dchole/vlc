@@ -46,6 +46,11 @@ Window {
     Connections {
         target: DialogsProvider
         function onShowRedesignPreferences() { if (!root.visible) root.begin(); else { root.raise(); root.requestActivate() } }
+        function onShowRedesignShortcuts() {
+            if (!root.visible) root.begin(); else { root.raise(); root.requestActivate() }
+            root.category = "controls"; root.search = ""; root.advanced = false
+            shortcuts.open()
+        }
     }
     component GroupHeading: Text {
         width: parent.width; height: theme.dp(39); topPadding: theme.dp(10)

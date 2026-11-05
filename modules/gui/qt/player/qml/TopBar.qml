@@ -29,6 +29,7 @@ import VLC.PlayerControls
 import VLC.Playlist
 import VLC.Widgets as Widgets
 import VLC.Menus as Menus
+import VLC.Dialogs
 import VLC.Util
 
 FocusScope{
@@ -356,22 +357,165 @@ FocusScope{
 
                     AccessibleCompat.id: "topBarMenuButton"
 
-                    checked: contextMenu.shown
+                    checked: contextMenu.visible
 
                     Navigation.parentItem: root
                     Navigation.rightItem: backBtn
 
-                    onClicked: contextMenu.popup(this.mapToGlobal(0, height))
+                    onClicked: {
+                        if (contextMenu.visible)
+                            contextMenu.dismiss()
+                        else
+                            contextMenu.popup(this, 0, height + VLCStyle.dp(6, VLCStyle.scale))
+                    }
 
                     onHoveredChanged: root.requestLockUnlockAutoHide(hovered)
 
-                    Menus.QmlGlobalMenu {
+                    // The main menu of the redesign (Figma 6062:13354). What
+                    // it leaves out of VLC's menus is in the menu bar (F10).
+                    RedesignMenu {
                         id: contextMenu
 
-                        ctx: MainCtx
+                        readonly property string _icons: "qrc:///redesign/menu/"
+
+                        // The recently played media, when there is a media
+                        // library: its QML module only exists then.
+                        readonly property var _recents: MainCtx.mediaLibraryAvailable
+                            ? Qt.createQmlObject("import VLC.MediaLibrary; MLRecentMediaModel { ml: MediaLib; limit: 10 }",
+                                                 contextMenu, "recentMedia")
+                            : null
+
+                        dark: root.colorContext.palette.isDark
+                        entryWidth: VLCStyle.dp(367, VLCStyle.scale)
 
                         onAboutToShow: root.requestLockUnlockAutoHide(true)
                         onAboutToHide: root.requestLockUnlockAutoHide(false)
+
+                        // The keys move in the menu, not in the player.
+                        onOpened: MainCtx.preferHotkeys = false
+                        onClosed: MainCtx.preferHotkeys = true
+
+                        T.Action {
+                            property string shortcutText: "Ctrl + O"
+                            text: qsTr("Open File(s)")
+                            icon.source: contextMenu._icons + "file-two-tone.svg"
+                            onTriggered: DialogsProvider.simpleOpenDialog()
+                        }
+
+                        T.Action {
+                            property string shortcutText: "Ctrl + F"
+                            text: qsTr("Open Folder")
+                            icon.source: contextMenu._icons + "folder-two-tone.svg"
+                            onTriggered: DialogsProvider.PLOpenDir()
+                        }
+
+                        T.Action {
+                            property string shortcutText: "Ctrl + N"
+                            text: qsTr("Open Network Stream")
+                            icon.source: contextMenu._icons + "streaming-two-tone.svg"
+                            onTriggered: DialogsProvider.openNetDialog()
+                        }
+
+                        T.Action {
+                            property string shortcutText: "Ctrl + D"
+                            text: qsTr("Open Disc")
+                            icon.source: contextMenu._icons + "disc-two-tone.svg"
+                            onTriggered: DialogsProvider.openDiscDialog()
+                        }
+
+                        T.Action {
+                            property string shortcutText: "Ctrl + C"
+                            text: qsTr("Open Capture Device")
+                            icon.source: contextMenu._icons + "capture-device-two-tone.svg"
+                            onTriggered: DialogsProvider.openCaptureDialog()
+                        }
+
+                        T.Action {
+                            property string shortcutText: "Ctrl + R"
+                            text: qsTr("Convert")
+                            icon.source: contextMenu._icons + "swap-two-tone.svg"
+                            onTriggered: DialogsProvider.openAndTranscodingDialogs()
+                        }
+
+                        RedesignMenu {
+                            id: recentMenu
+
+                            title: qsTr("Open Recent")
+                            iconSource: contextMenu._icons + "recent-two-tone.svg"
+                            dark: contextMenu.dark
+                            enabled: (contextMenu._recents?.count ?? 0) > 0
+
+                            Instantiator {
+                                model: contextMenu._recents
+
+                                delegate: T.Action {
+                                    readonly property string url: model.url
+
+                                    text: model.title || url
+                                    onTriggered: MainPlaylistController.append(url, true)
+                                }
+
+                                onObjectAdded: (index, object) => recentMenu.insertAction(index, object)
+                                onObjectRemoved: (index, object) => recentMenu.removeAction(object)
+                            }
+                        }
+
+                        // The profiles of the control bar.
+                        RedesignMenu {
+                            id: profileMenu
+
+                            readonly property var _profiles: MainCtx.controlbarProfileModel
+
+                            title: qsTr("Profile (%1)").arg(_profiles.currentModel?.name ?? "")
+                            iconSource: contextMenu._icons + "profile-two-tone.svg"
+                            dark: contextMenu.dark
+                            divider: true
+
+                            Instantiator {
+                                model: profileMenu._profiles
+
+                                // The roles of the row are in the context of
+                                // the delegate: required properties are not
+                                // set on an Action.
+                                delegate: T.Action {
+                                    readonly property int row: index
+
+                                    text: model.name
+                                    checkable: true
+                                    checked: profileMenu._profiles.selectedProfile === row
+                                    onTriggered: profileMenu._profiles.selectedProfile = row
+                                }
+
+                                onObjectAdded: (index, object) => profileMenu.insertAction(index, object)
+                                onObjectRemoved: (index, object) => profileMenu.removeAction(object)
+                            }
+                        }
+
+                        T.Action {
+                            text: qsTr("Keyboard Shortcuts")
+                            icon.source: contextMenu._icons + "hotkeys-two-tone.svg"
+                            onTriggered: DialogsProvider.showRedesignShortcuts()
+                        }
+
+                        T.Action {
+                            text: qsTr("Customize Player")
+                            icon.source: contextMenu._icons + "paint-two-tone.svg"
+                            onTriggered: DialogsProvider.showToolbarEditorDialog()
+                        }
+
+                        T.Action {
+                            property string shortcutText: "Ctrl + P"
+                            text: qsTr("Settings")
+                            icon.source: contextMenu._icons + "settings-two-tone.svg"
+                            onTriggered: DialogsProvider.prefsDialog()
+                        }
+
+                        T.Action {
+                            property string shortcutText: "Shift + F1"
+                            text: qsTr("About VLC")
+                            icon.source: contextMenu._icons + "info-two-tone.svg"
+                            onTriggered: DialogsProvider.aboutDialog()
+                        }
                     }
 
                     Connections {

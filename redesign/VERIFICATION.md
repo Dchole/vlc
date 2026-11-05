@@ -344,6 +344,16 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   screen. The arrows of Playback, Video, Audio, Subtitle, More Settings and
   Playlist are those of the design; only Open Media has a submenu, the
   others open a panel or a window.
+- Main menu ("…" of the top bar, `design/main-menu.png`). Seen: the
+  entries, icons, shortcuts and arrows of the design; Profile shows the
+  current profile of the control bar in its title and lists the five with
+  a check on the current one; choosing Minimalist Style changes the control
+  bar; Keyboard Shortcuts opens the preferences on Controls with the
+  shortcut editor. Open Recent is dimmed: this build has no media library,
+  so its list was not seen. Not tried: the open entries, Convert, Customize
+  Player, Settings and About from the menu, and Shift+F1, which now opens
+  About as the design says. The rest of VLC's menus is in the menu bar,
+  F10.
 - `RedesignButton.qml` and `RedesignPreferenceRow.qml` log
   `popupType is not defined`: `Popup.popupType` is newer than Qt 6.4. The
   popups themselves were not tried.

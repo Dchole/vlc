@@ -795,23 +795,30 @@ ui_%.h: %.ui
 libqt_plugin_la_RES = \
 	pixmaps/redesign/menu/audio-two-tone.svg \
 	pixmaps/redesign/menu/capture-device-two-tone.svg \
+	pixmaps/redesign/menu/check-active.svg \
 	pixmaps/redesign/menu/chevron-right.svg \
 	pixmaps/redesign/menu/disc-two-tone.svg \
 	pixmaps/redesign/menu/file-two-tone.svg \
 	pixmaps/redesign/menu/folder-two-tone.svg \
+	pixmaps/redesign/menu/hotkeys-two-tone.svg \
+	pixmaps/redesign/menu/info-two-tone.svg \
 	pixmaps/redesign/menu/next-two-tone.svg \
+	pixmaps/redesign/menu/paint-two-tone.svg \
 	pixmaps/redesign/menu/pause-two-tone.svg \
 	pixmaps/redesign/menu/playback-selected-two-tone.svg \
 	pixmaps/redesign/menu/playback-two-tone.svg \
 	pixmaps/redesign/menu/playlist-two-tone.svg \
 	pixmaps/redesign/menu/previous-two-tone.svg \
+	pixmaps/redesign/menu/profile-two-tone.svg \
 	pixmaps/redesign/menu/quit-two-tone.svg \
+	pixmaps/redesign/menu/recent-two-tone.svg \
 	pixmaps/redesign/menu/record-active.svg \
 	pixmaps/redesign/menu/record-two-tone.svg \
 	pixmaps/redesign/menu/settings-two-tone.svg \
 	pixmaps/redesign/menu/stop-two-tone.svg \
 	pixmaps/redesign/menu/streaming-two-tone.svg \
 	pixmaps/redesign/menu/subtitles-two-tone.svg \
+	pixmaps/redesign/menu/swap-two-tone.svg \
 	pixmaps/redesign/menu/ui.svg \
 	pixmaps/redesign/menu/video-two-tone.svg \
 	pixmaps/VLCIcons.ttf \

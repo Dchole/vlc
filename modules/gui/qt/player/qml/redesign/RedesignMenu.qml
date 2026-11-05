@@ -15,12 +15,17 @@ import VLC.Style
 //   property bool divider         a line above the entry
 //   property bool arrow           the arrow of a submenu, for an entry that
 //                                 opens something else, such as a panel
+// A checkable Action that is checked shows a check mark at the right.
 // A submenu is another RedesignMenu, with `title`, `iconSource` and
 // `divider`.
 T.Menu {
     id: root
 
     property bool dark: true
+
+    // The width of the rows, without the padding of the menu: 284 in the
+    // menu of the video, 367 in the main menu (Figma 6062:13354).
+    property real entryWidth: _dp(284)
 
     // The icon of this menu where it is an entry of another one
     property url iconSource
@@ -64,8 +69,9 @@ T.Menu {
         readonly property bool _divider: _entry?.divider ?? false
         readonly property string _shortcutText: action?.shortcutText ?? ""
         readonly property bool _arrow: !!subMenu || (action?.arrow ?? false)
+        readonly property bool _check: !subMenu && checkable && checked
 
-        implicitWidth: root._dp(284)
+        implicitWidth: root.entryWidth
         implicitHeight: root._dp(48) + topPadding
 
         // The line above the entry takes one pixel, as in the design.
@@ -115,7 +121,7 @@ T.Menu {
                 anchors.rightMargin: root._dp(14)
                 anchors.verticalCenter: parent.verticalCenter
 
-                visible: !item._arrow && text.length > 0
+                visible: !item._arrow && !item._check && text.length > 0
 
                 text: item._shortcutText
                 textFormat: Text.PlainText
@@ -123,6 +129,18 @@ T.Menu {
                 font.pixelSize: root._dp(14)
                 color: item.enabled ? root.shortcutColor : root.disabledColor
             }
+        }
+
+        indicator: Image {
+            x: item.width - root._dp(14) - width
+            y: item.topPadding + (item.availableHeight - height) / 2
+
+            width: root._dp(24)
+            height: width
+            sourceSize: Qt.size(width, height)
+
+            visible: item._check
+            source: "qrc:///redesign/menu/check-active.svg"
         }
 
         arrow: Image {
@@ -166,7 +184,7 @@ T.Menu {
     }
 
     background: Rectangle {
-        implicitWidth: root._dp(292)
+        implicitWidth: root.entryWidth + root.leftPadding + root.rightPadding
         radius: root._dp(10)
         color: root.backgroundColor
     }
