@@ -163,6 +163,7 @@
         <file alias="swap-two-tone.svg">pixmaps/redesign/menu/swap-two-tone.svg</file>
         <file alias="ui.svg">pixmaps/redesign/menu/ui.svg</file>
         <file alias="video-two-tone.svg">pixmaps/redesign/menu/video-two-tone.svg</file>
+        <file alias="vlc.svg">pixmaps/redesign/menu/vlc.svg</file>
     </qresource>
     <qresource prefix="/fonts">
         <file alias="Inter-Regular.otf">pixmaps/fonts/Inter-Regular.otf</file>

@@ -34,7 +34,7 @@ rm -f "$LOG"
 # setsid -f and runuser: started through su as a background job, VLC is
 # told to quit right away.
 setsid -f runuser -u "$VLC_USER" -- env HOME="$VLC_HOME" DISPLAY=$D \
-    LIBGL_ALWAYS_SOFTWARE=1 "$BUILD"/vlc -vv --no-audio --no-qt-privacy-ask \
+    LIBGL_ALWAYS_SOFTWARE=1 "$BUILD"/vlc -vv --no-audio --no-qt-privacy-ask --no-qt-onboarding \
     --file-logging --logfile="$LOG" ${MEDIA:+"$MEDIA"} >/dev/null 2>&1 </dev/null
 sleep "$WAIT"
 

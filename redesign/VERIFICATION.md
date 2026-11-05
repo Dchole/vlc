@@ -362,6 +362,18 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   local `file://` ones, the container has no stream to open. Without a
   media library the playlist name is disabled with a line that says why;
   saving a named playlist (`MLPlaylistListModel.create`) was not tried.
+- Onboarding (`RedesignOnboardingWindow.qml`, `design/onboarding-*.png`),
+  shown while `qt-onboarding` is on (`--qt-onboarding` here; the test
+  scripts pass `--no-qt-onboarding`). Seen: the welcome screen; the theme
+  screen with its three swatches and nine colors, choosing purple
+  recolors the preview and the buttons at once; the shortcuts screen with
+  VLC's own hotkeys (Seek is Shift+←/→ and Volume Ctrl+↑/↓ in VLC, the
+  design shows ←/→ and ↑/↓; Show/Hide Queue and File Browser of the
+  design have no VLC hotkey and are left out); Finish closes it and saves
+  `qt-onboarding=0` and `qt-accent-color=#7360ba`. Without a media library
+  the media folder is disabled with a line that says why; adding the
+  folder (`MLFolderModel.add`) and Browse were not tried. The light half
+  of the System swatch has square corners on its right.
 - Queue panel tabs: Queue, Bookmarks and Chapters, as in the "chapters"
   variant of the control bar (Figma 6321:14024). Seen with a clip that has
   five chapters (made with ffmpeg): the Chapters tab lists them numbered,

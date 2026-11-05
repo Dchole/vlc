@@ -6,6 +6,7 @@
 #include <cmath>
 #include <algorithm>
 #include <QFileDialog>
+#include <QStandardPaths>
 #include <QColorDialog>
 #include <QGuiApplication>
 #include <QScreen>
@@ -420,6 +421,16 @@ QString RedesignPreferences::choosePath(const QString& name)
     case CONFIG_ITEM_LOADFILE: return QFileDialog::getOpenFileName(nullptr, qtr("Select file"), initial);
     default: return {};
     }
+}
+
+QString RedesignPreferences::chooseFolder(const QString& initial)
+{
+    return QFileDialog::getExistingDirectory(nullptr, qtr("Select folder"), initial);
+}
+
+QString RedesignPreferences::videosFolder() const
+{
+    return QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
 }
 
 QString RedesignPreferences::chooseColor(const QString& initial)

@@ -44,7 +44,7 @@ case "$1" in
         if [ -n "$VLC_AOUT" ]; then AUDIO="--aout=$VLC_AOUT"; else AUDIO="--no-audio"; fi
         setsid -f runuser -u "$VLC_USER" -- env HOME="$VLC_HOME" DISPLAY=$D \
             LIBGL_ALWAYS_SOFTWARE=1 "$BUILD"/vlc -vv "$AUDIO" \
-            --no-qt-privacy-ask --file-logging --logfile="$LOG" "$@" \
+            --no-qt-privacy-ask --no-qt-onboarding --file-logging --logfile="$LOG" "$@" \
             ${MEDIA:+"$MEDIA"} >/dev/null 2>&1 </dev/null
         echo "started on $D, log: $LOG"
         ;;

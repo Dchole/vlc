@@ -297,6 +297,10 @@ static void ShowDialog   ( intf_thread_t *, int, int, intf_dialog_args_t * );
 #define PIP_MODE_LONGTEXT N_( "Picture-in-picture mode allows playing video contained in a smaller area so that the interface remains usable." )
 
 #define ACCENT_COLOR_TEXT N_( "Accent color" )
+#define ONBOARDING_TEXT N_( "Show the welcome screens" )
+#define ONBOARDING_LONGTEXT N_( "Show the welcome screens of the interface " \
+                            "(media folder, theme and color, basic shortcuts) " \
+                            "at the next start. They turn this off when finished." )
 #define ACCENT_COLOR_LONGTEXT N_( "Adjusts the accent color, special values are 'default' and 'system' (requires Qt 6.6) ." )
 
 static const int initial_prefs_view_list[] = { 0, 1, 2 };
@@ -481,6 +485,7 @@ vlc_module_begin ()
     add_float_with_range( "qt-safe-area", 0, 0, 100.0, SAFE_AREA_TEXT, SAFE_AREA_LONGTEXT )
 
     add_string( "qt-accent-color", "default", ACCENT_COLOR_TEXT, ACCENT_COLOR_LONGTEXT )
+    add_bool( "qt-onboarding", true, ONBOARDING_TEXT, ONBOARDING_LONGTEXT )
 
     cannot_unload_broken_library()
 

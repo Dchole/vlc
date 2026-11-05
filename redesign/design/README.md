@@ -32,3 +32,7 @@ queried at will (the Figma MCP server allows 20 calls a month on a free plan).
   `6062:13354`, rows of 367.
 - `audio-equalizer.png`: the equalizer of the Audio tab, node
   `6114:13610`, collapsed and expanded (preamp and ten bands).
+- `onboarding-1-welcome.png`, `onboarding-2-theme.png`,
+  `onboarding-3-shortcuts.png`: the three welcome screens, nodes
+  `1899:3055`, `1902:3670` (the theme screen in one of its nine colors) and
+  `1902:6770`.

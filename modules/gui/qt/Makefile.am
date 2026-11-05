@@ -824,6 +824,7 @@ libqt_plugin_la_RES = \
 	pixmaps/redesign/menu/swap-two-tone.svg \
 	pixmaps/redesign/menu/ui.svg \
 	pixmaps/redesign/menu/video-two-tone.svg \
+	pixmaps/redesign/menu/vlc.svg \
 	pixmaps/VLCIcons.ttf \
 	pixmaps/addons/addon_default.svg \
 	pixmaps/addons/addon_broken.svg \
@@ -1214,6 +1215,7 @@ libqml_module_player_a_QML = \
 	player/qml/redesign/RedesignIcon.qml \
 	player/qml/redesign/RedesignMenu.qml \
 	player/qml/redesign/RedesignNetworkStreamWindow.qml \
+	player/qml/redesign/RedesignOnboardingWindow.qml \
 	player/qml/redesign/RedesignTheme.qml \
 	player/qml/PlaybackSpeed.qml \
 	player/qml/LyricsFlickable.qml \
