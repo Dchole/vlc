@@ -362,6 +362,13 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   local `file://` ones, the container has no stream to open. Without a
   media library the playlist name is disabled with a line that says why;
   saving a named playlist (`MLPlaylistListModel.create`) was not tried.
+- External Tracks of the subtitles tab. Seen with an MP4 holding a
+  subtitle stream and an .srt of the same name next to it: Embedded Tracks
+  lists the stream ("Track 1 - [English]"), External Tracks the file
+  ("Track 2", selected); a click on Track 1 selects it (`spu/3` in the log)
+  and moves the check. A track is external when its string id starts with
+  the hash of another source than the media (`TrackListModel.ExternalRole`).
+  Not tried: a file added with the + button, closed captions.
 - Inter: the interface loads Regular, Medium and SemiBold from its own
   resources (`modules/gui/qt/pixmaps/fonts`, SIL OFL, `OFL.txt`) and makes
   Inter the application font. Seen with the system's Inter removed from

@@ -48,6 +48,8 @@ QVariant TrackListModel::data(const QModelIndex &index, int role) const
         return m_data[row].m_title;
     else if (role == Qt::CheckStateRole)
         return QVariant::fromValue<bool>(m_data[row].m_selected);
+    else if (role == ExternalRole)
+        return QVariant::fromValue<bool>(m_data[row].m_external);
     return QVariant{};
 }
 
@@ -153,6 +155,7 @@ QHash<int, QByteArray> TrackListModel::roleNames() const
 {
     QHash<int, QByteArray> roleNames = this->QAbstractListModel::roleNames();
     roleNames[Qt::CheckStateRole] = QByteArrayLiteral("checked");
+    roleNames[ExternalRole] = QByteArrayLiteral("external");
     return roleNames;
 }
 
@@ -182,8 +185,27 @@ void TrackListModel::setMultiSelect(bool multiSelect)
     emit multiSelectChanged(m_multiSelect);
 }
 
+/* The string id of a track starts with its category ("video/1", "spu/0",
+ * "video/1/cc/spu/1"), unless it comes from another source than the media,
+ * such as a subtitle file: then it starts with the hash of that source's
+ * MRL (see EsOutCreateStrId() and InputSourceNew() in src/input). */
+static bool isExternalTrack( vlc_es_id_t *id )
+{
+    const char *strId = id ? vlc_es_id_GetStrId( id ) : nullptr;
+    if( !strId )
+        return false;
+
+    const char *end = strchr( strId, '/' );
+    const size_t length = end ? size_t( end - strId ) : strlen( strId );
+    for( const char *category : { "video", "audio", "spu", "data", "unknown" } )
+        if( length == strlen( category ) && strncmp( strId, category, length ) == 0 )
+            return false;
+    return true;
+}
+
 TrackListModel::Data::Data(const vlc_player_track *track_info)
     : m_title( qfu(track_info->name) )
+    , m_external( isExternalTrack( track_info->es_id ) )
     , m_id( track_info->es_id, true )
     , m_selected( track_info->selected )
 {
@@ -193,6 +215,7 @@ void TrackListModel::Data::update(const vlc_player_track *track_info)
 {
     m_id.reset(track_info->es_id, true);
     m_title = qfu(track_info->name);
+    m_external = isExternalTrack( track_info->es_id );
     m_selected = track_info->selected;
 }
 

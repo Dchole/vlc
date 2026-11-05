@@ -38,6 +38,8 @@
  * the model expose the track title using the Qt::DisplayRole
  * and the current track using Qt::CheckStateRole
  * we can select a track by setting the Qt::CheckStateRole to true
+ * ExternalRole ("external") tells a track of a file added to the media,
+ * such as a subtitle file, from a track of the media itself
  *
  * this class expects to be updated by the input manager
  */
@@ -48,6 +50,11 @@ class TrackListModel : public QAbstractListModel
     Q_PROPERTY(bool multiSelect READ getMultiSelect WRITE setMultiSelect NOTIFY multiSelectChanged FINAL)
 
 public:
+    enum Roles {
+        ExternalRole = Qt::UserRole + 1,
+    };
+    Q_ENUM(Roles)
+
     TrackListModel(vlc_player_t* player, QObject* parent = nullptr);
 
     Qt::ItemFlags flags(const QModelIndex &) const  override;
@@ -89,6 +96,7 @@ private:
         void update( const vlc_player_track *track_info );
 
         QString m_title;
+        bool m_external = false;
         //vlc_es_id_t *m_id = NULL;
         ::vlc::vlc_shared_data_ptr<vlc_es_id_t, &vlc_es_id_Hold, &vlc_es_id_Release> m_id;
         bool m_selected = false;

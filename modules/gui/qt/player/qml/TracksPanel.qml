@@ -94,16 +94,24 @@ PlayerPanel {
     ColumnLayout {
         spacing: VLCStyle.dp(1, VLCStyle.scale)
 
+        // The subtitle tracks of the media itself, and those of the files
+        // added to it (TrackListModel.ExternalRole).
         Section {
             title: qsTr("Embedded Tracks")
-            tracks: Player.subtitleTracks
+            tracks: QtSortFilterProxyModel {
+                sourceModel: Player.subtitleTracks
+                filterRole: TrackListModel.ExternalRole
+                filterRegularExpression: /^false$/
+            }
         }
 
         Section {
-            // The tracks of a file that was added are listed with the others
-            // above: this is where to add one.
             title: qsTr("External Tracks")
-            tracks: null
+            tracks: QtSortFilterProxyModel {
+                sourceModel: Player.subtitleTracks
+                filterRole: TrackListModel.ExternalRole
+                filterRegularExpression: /^true$/
+            }
 
             actions: Widgets.IconToolButton {
                 text: VLCIcons.add
