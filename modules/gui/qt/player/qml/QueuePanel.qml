@@ -144,6 +144,9 @@ PlayerPanel {
                     T.Popup {
                         id: sortList
 
+                        // Popups are stacked by z: over the panel, a popup too.
+                        z: root.z + 1
+
                         x: parent.width - width
                         y: parent.height + VLCStyle.margin_xxsmall
 

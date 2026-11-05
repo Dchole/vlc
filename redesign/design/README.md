@@ -30,3 +30,5 @@ queried at will (the Figma MCP server allows 20 calls a month on a free plan).
   entries of the main menu, node `6062:13354`.
 - `main-menu.png`: the main menu, behind the "…" of the top bar, node
   `6062:13354`, rows of 367.
+- `audio-equalizer.png`: the equalizer of the Audio tab, node
+  `6114:13610`, collapsed and expanded (preamp and ten bands).

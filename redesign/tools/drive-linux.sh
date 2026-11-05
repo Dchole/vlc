@@ -8,6 +8,8 @@
 #        drive-linux.sh stop
 #
 #   BUILD, VLC_USER  as in shot-linux.sh
+#   VLC_AOUT  an audio output, such as "dummy" for one that plays nothing;
+#             without it VLC runs with --no-audio
 #
 # While it runs, DISPLAY=:96 reaches the screen, for instance:
 #   DISPLAY=:96 xdotool search --onlyvisible --class vlc
@@ -39,8 +41,9 @@ case "$1" in
             sleep 1
         fi
         rm -f "$LOG"
+        if [ -n "$VLC_AOUT" ]; then AUDIO="--aout=$VLC_AOUT"; else AUDIO="--no-audio"; fi
         setsid -f runuser -u "$VLC_USER" -- env HOME="$VLC_HOME" DISPLAY=$D \
-            LIBGL_ALWAYS_SOFTWARE=1 "$BUILD"/vlc -vv --no-audio \
+            LIBGL_ALWAYS_SOFTWARE=1 "$BUILD"/vlc -vv "$AUDIO" \
             --no-qt-privacy-ask --file-logging --logfile="$LOG" "$@" \
             ${MEDIA:+"$MEDIA"} >/dev/null 2>&1 </dev/null
         echo "started on $D, log: $LOG"

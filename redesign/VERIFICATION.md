@@ -362,6 +362,27 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   local `file://` ones, the container has no stream to open. Without a
   media library the playlist name is disabled with a line that says why;
   saving a named playlist (`MLPlaylistListModel.create`) was not tried.
+- Audio tab, with `VLC_AOUT=adummy` (an output that plays nothing) and a
+  stereo clip. Seen: Stereo Mode lists Mono, Stereo, Left, Right and
+  Reverse stereo; Reverse stereo stays chosen after the restart of the
+  output it causes and the list keeps its names. With a mono clip it
+  reads Unavailable, as VLC has no stereo modes for one channel. With the
+  equalizer on (`equalizer` module loaded), Bands expands to the preamp
+  (12.0 dB for Flat) and the ten bands of `design/audio-equalizer.png`;
+  dragging 60 Hz shows 9.1 dB and saves `equalizer-bands=9.1 0.0 ...`.
+  Compressor Settings expands to its seven settings at VLC's defaults.
+  Not heard: the output plays nothing, so the effect of the bands and of
+  the filter settings on the sound was not checked, only that they are
+  set. Spatializer and Stereo Widener settings were not opened.
+- Before the fix, choosing a stereo mode came back as Stereo: the output
+  restarts for it, and `aout_PrepareStereoMode()` overwrote the mode that
+  was asked for with the default of the format (also so in VLC's master).
+  The choices it adds again then showed their numbers ("2"):
+  `VLCVarChoiceModel` named added choices by their value and did not
+  find the current one among them.
+- The lists of the settings panel (and the sort list of the queue) opened
+  under the panel's own rows: both are popups and the panel has a higher
+  z. They are above it now; Escape closes the list and not the panel.
 - External Tracks of the subtitles tab. Seen with an MP4 holding a
   subtitle stream and an .srt of the same name next to it: Embedded Tracks
   lists the stream ("Track 1 - [English]"), External Tracks the file

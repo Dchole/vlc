@@ -755,6 +755,16 @@ PlayerPanel {
         Group {
             title: qsTr("Filters")
 
+            // How the channels are played: stereo, reversed, one side,
+            // mono... The choices are those of the audio output.
+            ModelChoiceSetting {
+                title: qsTr("Stereo Mode")
+                model: Player.audioStereoMode
+
+                enabled: (options.length > 0)
+                placeholderText: qsTr("Unavailable")
+            }
+
             Option {
                 id: audioFilterOption
                 name: "audio-filter"
@@ -828,11 +838,84 @@ PlayerPanel {
                 onToggled: (checked) => equalizerTwoPass.set(checked)
             }
 
+            // The preamp and the ten bands of the equalizer (Figma 6114:13610,
+            // redesign/design/audio-equalizer.png). A preset sets them all,
+            // these change one.
+            ExpandSetting {
+                id: equalizerBands
+
+                title: qsTr("Bands")
+                separated: false
+
+                // The bands, as the equalizer has them: ten numbers in dB
+                readonly property var _values: {
+                    const values = String(bandsOption.value ?? "").trim().split(/\s+/)
+                                       .map((band) => Number(band) || 0)
+                    while (values.length < 10)
+                        values.push(0)
+                    return values.slice(0, 10)
+                }
+
+                function _setBand(index: int, value: real) {
+                    const values = _values.slice()
+                    values[index] = value
+                    const bands = values.map((band) => band.toFixed(1)).join(" ")
+                    bandsOption.set(bands)
+                    Player.applyAudioSetting("equalizer-bands", bands)
+                }
+
+                Option {
+                    id: bandsOption
+                    name: "equalizer-bands"
+                }
+
+                AudioOptionSlider {
+                    title: qsTr("Preamp")
+                    option: "equalizer-preamp"
+                    from: -20; to: 20; stepSize: 0.1
+                    unit: qsTr("%1 dB")
+                    decimals: 1
+                    boxed: true
+                }
+
+                Repeater {
+                    // The frequencies of VLC's equalizer
+                    model: [qsTr("60 Hz"), qsTr("170 Hz"), qsTr("310 Hz"), qsTr("600 Hz"), qsTr("1 KHz"),
+                            qsTr("3 KHz"), qsTr("6 KHz"), qsTr("12 KHz"), qsTr("14 KHz"), qsTr("16 KHz")]
+
+                    SliderSetting {
+                        required property string modelData
+                        required property int index
+
+                        title: modelData
+                        valueText: qsTr("%1 dB").arg(value.toFixed(1))
+                        from: -20; to: 20; stepSize: 0.1
+                        origin: 0
+
+                        value: equalizerBands._values[index]
+                        onMoved: (value) => equalizerBands._setBand(index, value)
+                    }
+                }
+            }
+
             ToggleSetting {
                 title: qsTr("Compressor")
 
                 checked: root._audioFilters.includes("compressor")
                 onToggled: (checked) => root._setAudioFilter("compressor", checked)
+            }
+
+            ExpandSetting {
+                title: qsTr("Compressor Settings")
+                separated: false
+
+                AudioOptionSlider { title: qsTr("RMS/Peak"); option: "compressor-rms-peak"; from: 0; to: 1; stepSize: 0.01; unit: "%1"; decimals: 2 }
+                AudioOptionSlider { title: qsTr("Attack"); option: "compressor-attack"; from: 1.5; to: 400; stepSize: 0.5; unit: qsTr("%1 ms"); decimals: 1 }
+                AudioOptionSlider { title: qsTr("Release"); option: "compressor-release"; from: 2; to: 800; stepSize: 1; unit: qsTr("%1 ms"); decimals: 0 }
+                AudioOptionSlider { title: qsTr("Threshold"); option: "compressor-threshold"; from: -30; to: 0; stepSize: 0.1; unit: qsTr("%1 dB"); decimals: 1 }
+                AudioOptionSlider { title: qsTr("Ratio"); option: "compressor-ratio"; from: 1; to: 20; stepSize: 0.1; unit: qsTr("%1:1"); decimals: 1 }
+                AudioOptionSlider { title: qsTr("Knee Radius"); option: "compressor-knee"; from: 1; to: 10; stepSize: 0.1; unit: qsTr("%1 dB"); decimals: 1 }
+                AudioOptionSlider { title: qsTr("Makeup Gain"); option: "compressor-makeup-gain"; from: 0; to: 24; stepSize: 0.1; unit: qsTr("%1 dB"); decimals: 1 }
             }
 
             ToggleSetting {
@@ -842,11 +925,32 @@ PlayerPanel {
                 onToggled: (checked) => root._setAudioFilter("spatializer", checked)
             }
 
+            ExpandSetting {
+                title: qsTr("Spatializer Settings")
+                separated: false
+
+                AudioOptionSlider { title: qsTr("Room Size"); option: "spatializer-roomsize"; from: 0; to: 1.1; stepSize: 0.01; unit: "%1"; decimals: 2 }
+                AudioOptionSlider { title: qsTr("Room Width"); option: "spatializer-width"; from: 0; to: 1; stepSize: 0.01; unit: "%1"; decimals: 2 }
+                AudioOptionSlider { title: qsTr("Wet"); option: "spatializer-wet"; from: 0; to: 1; stepSize: 0.01; unit: "%1"; decimals: 2 }
+                AudioOptionSlider { title: qsTr("Dry"); option: "spatializer-dry"; from: 0; to: 1; stepSize: 0.01; unit: "%1"; decimals: 2 }
+                AudioOptionSlider { title: qsTr("Damp"); option: "spatializer-damp"; from: 0; to: 1; stepSize: 0.01; unit: "%1"; decimals: 2 }
+            }
+
             ToggleSetting {
                 title: qsTr("Stereo Widener")
 
                 checked: root._audioFilters.includes("stereo_widen")
                 onToggled: (checked) => root._setAudioFilter("stereo_widen", checked)
+            }
+
+            ExpandSetting {
+                title: qsTr("Stereo Widener Settings")
+                separated: false
+
+                AudioOptionSlider { title: qsTr("Delay Time"); option: "stereowiden-delay"; from: 1; to: 100; stepSize: 1; unit: qsTr("%1 ms"); decimals: 0 }
+                AudioOptionSlider { title: qsTr("Feedback Gain"); option: "stereowiden-feedback"; from: 0; to: 0.9; stepSize: 0.01; unit: "%1"; decimals: 2 }
+                AudioOptionSlider { title: qsTr("Crossfeed"); option: "stereowiden-crossfeed"; from: 0; to: 0.8; stepSize: 0.01; unit: "%1"; decimals: 2 }
+                AudioOptionSlider { title: qsTr("Dry Mix"); option: "stereowiden-dry-mix"; from: 0; to: 1; stepSize: 0.01; unit: "%1"; decimals: 2 }
             }
 
             SliderSetting {
@@ -1454,6 +1558,29 @@ PlayerPanel {
             T.Popup {
                 id: choiceList
 
+                // Popups are stacked by z: over the panel it opens from,
+                // which is a popup too.
+                z: root.z + 1
+
+                // Escape closes it, not the panel: the keys go to the list
+                // rather than being hotkeys of the player while it is open.
+                focus: true
+
+                property bool _preferHotkeys: false
+
+                onOpened: {
+                    _preferHotkeys = MainCtx.preferHotkeys
+                    MainCtx.preferHotkeys = false
+                    listView.forceActiveFocus()
+                }
+                onClosed: MainCtx.preferHotkeys = _preferHotkeys
+
+                // It goes with the panel.
+                Connections {
+                    target: root
+                    function onClosed() { choiceList.close() }
+                }
+
                 y: parent.height + VLCStyle.margin_xxsmall
 
                 width: parent.width
@@ -1996,6 +2123,33 @@ PlayerPanel {
 
         checked: root._videoFilterOn(filter)
         onToggled: (checked) => root._setVideoFilter(filter, checked)
+    }
+
+    // A slider for an option of an audio filter: saved, and given to the
+    // filter while it plays.
+    component AudioOptionSlider: SliderSetting {
+        id: audioSlider
+
+        required property string option
+
+        // The value in its unit, "%1" being the number
+        property string unit: "%1"
+        property int decimals: 1
+
+        valueText: unit.arg(Number(value).toFixed(decimals))
+        boxed: false
+
+        value: Number(audioOption.value)
+        onMoved: (value) => {
+            audioOption.set(value)
+            Player.applyAudioSetting(audioSlider.option, value)
+        }
+
+        Option {
+            id: audioOption
+
+            name: audioSlider.option
+        }
     }
 
     // A slider for an option the video listens to while it plays.
