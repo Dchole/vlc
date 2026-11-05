@@ -17,3 +17,7 @@ queried at will (the Figma MCP server allows 20 calls a month on a free plan).
 - `playback-reference.tsx`: Figma's reference code for Playback, file
   `kJ3O3At8xC5cqxEwD2LD1n`, node `2238:9432`. Like the player reference,
   it contains temporary asset links and is not compiled into VLC.
+- `player-hide-ui.png`: the player with its interface hidden, frame
+  `3328:11554` ("Player - hide UI"): the video alone in its frame, round
+  corners on all four sides. "Hide UI" itself, with `Ctrl+\`, is an entry of
+  the right-click menu, node `6077:14294` in `figma-nodes.xml`.

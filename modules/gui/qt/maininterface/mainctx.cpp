@@ -644,6 +644,15 @@ void MainCtx::setPinVideoControls(bool pinVideoControls)
     emit pinVideoControlsChanged();
 }
 
+void MainCtx::setHideInterface(bool hideInterface)
+{
+    if (m_hideInterface == hideInterface)
+        return;
+
+    m_hideInterface = hideInterface;
+    emit hideInterfaceChanged();
+}
+
 QVariant MainCtx::option(const QString& name) const
 {
     const QByteArray key = name.toUtf8();

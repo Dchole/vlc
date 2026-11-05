@@ -763,6 +763,17 @@ QMenu* VLCMenuBar::PopupMenu( qt_intf_t *p_intf, bool show )
         if( p_vout )
         {
             menu->addAction(new BooleanPropertyAction(qtr( "&Fullscreen" ), THEMIM, "fullscreen", menu) );
+
+            /* "Hide UI" of the redesign: the bars leave the video in a
+             * window too. Ctrl+\ itself is a shortcut of the player view. */
+            if( MainCtx *mi = p_intf->p_mi )
+            {
+                action = new BooleanPropertyAction( qtr( "Hide UI" ), mi, "hideInterface", menu );
+                action->setShortcut( QKeySequence( Qt::CTRL | Qt::Key_Backslash ) );
+                action->setEnabled( !THEMIM->isFullscreen() );
+                menu->addAction( action );
+            }
+
             menu->addSeparator();
         }
 

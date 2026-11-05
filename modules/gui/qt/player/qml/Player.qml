@@ -67,16 +67,26 @@ FocusScope {
 
     // Private
 
+    // "Hide UI" (Ctrl+\ or the menu of the video): in a window, the bars
+    // leave the video as they do in full screen.
+    readonly property bool _interfaceHidden: (MainCtx.hideInterface
+                                              && MainCtx.hasEmbededVideo
+                                              && (MainCtx.intfMainWindow.visibility !== Window.FullScreen))
+
     property bool _controlsUnderVideo: (MainCtx.pinVideoControls
                                         &&
-                                        (MainCtx.intfMainWindow.visibility !== Window.FullScreen))
+                                        (MainCtx.intfMainWindow.visibility !== Window.FullScreen)
+                                        &&
+                                        !_interfaceHidden)
 
     // Next to the bars, the video is a framed picture with round corners
-    // rather than something that fills the window.
-    readonly property bool _videoFramed: MainCtx.hasEmbededVideo && _controlsUnderVideo
+    // rather than something that fills the window. With the interface
+    // hidden, the frame goes all around the video.
+    readonly property bool _videoFramed: MainCtx.hasEmbededVideo && (_controlsUnderVideo || _interfaceHidden)
 
     readonly property real _videoFrameSide: VLCStyle.dp(10, VLCStyle.scale)
-    readonly property real _videoFrameTop: VLCStyle.dp(1, VLCStyle.scale)
+    readonly property real _videoFrameTop: _interfaceHidden ? _videoFrameSide : VLCStyle.dp(1, VLCStyle.scale)
+    readonly property real _videoFrameBottom: _interfaceHidden ? _videoFrameSide : 0
 
     property bool _keyPressed: false
 
@@ -304,6 +314,7 @@ FocusScope {
                     anchors.leftMargin: rootPlayer._videoFramed ? rootPlayer._videoFrameSide : 0
                     anchors.rightMargin: anchors.leftMargin
                     anchors.topMargin: rootPlayer._videoFramed ? rootPlayer._videoFrameTop : 0
+                    anchors.bottomMargin: rootPlayer._videoFramed ? rootPlayer._videoFrameBottom : 0
 
                     // With regard to `ViewBlockingRectangle`, we
                     // do not need to prevent painting anything
@@ -987,7 +998,8 @@ FocusScope {
         x: playerSpecializationLoader.x + rootPlayer._videoFrameSide - _out
         y: playerSpecializationLoader.y + rootPlayer._videoFrameTop - _out
         width: playerSpecializationLoader.width - 2 * (rootPlayer._videoFrameSide - _out)
-        height: playerSpecializationLoader.height - rootPlayer._videoFrameTop + 2 * _out
+        height: playerSpecializationLoader.height - rootPlayer._videoFrameTop
+                - rootPlayer._videoFrameBottom + 2 * _out
 
         color: "transparent"
 
@@ -1086,7 +1098,8 @@ FocusScope {
             opacity: {
                 if (MainCtx.hasEmbededVideo && !MainCtx.pinVideoControls && !rootPlayer.displayFadeRectangles) {
                     return 0.6
-                } else if (MainCtx.intfMainWindow.visibility === Window.FullScreen && MainCtx.hasEmbededVideo) {
+                } else if ((MainCtx.intfMainWindow.visibility === Window.FullScreen || rootPlayer._interfaceHidden)
+                           && MainCtx.hasEmbededVideo) {
                     return MainCtx.pinOpacity
                 } else {
                     return 1.0
@@ -1274,7 +1287,8 @@ FocusScope {
             opacity: {
                 if (MainCtx.hasEmbededVideo && !MainCtx.pinVideoControls && !rootPlayer.displayFadeRectangles) {
                     return 0.6
-                } else if ((Window.visibility === Window.FullScreen) && MainCtx.hasEmbededVideo) {
+                } else if ((Window.visibility === Window.FullScreen || rootPlayer._interfaceHidden)
+                           && MainCtx.hasEmbededVideo) {
                     return MainCtx.pinOpacity
                 } else if (!MainCtx.hasEmbededVideo
                            || (AcrylicController.enabled && !rootPlayer._controlsUnderVideo)) {
@@ -1317,6 +1331,16 @@ FocusScope {
         onClicked: {
             MainCtx.playerView = false
         }
+    }
+
+    // "Hide UI" of the redesign, also in the menu of the video.
+    Shortcut {
+        sequence: "Ctrl+\\"
+        context: Qt.WindowShortcut
+        enabled: MainCtx.hasEmbededVideo
+                 && MainCtx.intfMainWindow.visibility !== Window.FullScreen
+
+        onActivated: MainCtx.hideInterface = !MainCtx.hideInterface
     }
 
     //filter key events to keep toolbar

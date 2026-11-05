@@ -316,7 +316,15 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   bars, and moving it back over the video lets them go.
 - Seen with `--no-qt-pin-controls` in a window: the video fills the window,
   the bars come over it with their gradients and leave after the timeout.
-  There is no switch for this in the player yet.
+- Hide UI (`player-hide-ui.png` in `design/`). Seen: `Ctrl+\` in a window
+  hides both bars after the timeout, and the video keeps its frame with round
+  corners on all four sides; moving the pointer brings both bars over the
+  video, resting it on the control bar keeps them; `Ctrl+\` again puts the
+  bars back next to the video. The right-click menu of the video shows
+  "Hide UI" with `Ctrl+\` checked under Fullscreen. Choosing the menu entry with
+  the pointer and the state across a restart (it is not saved) were not
+  tried. The 16:9 clip leaves black bands above and below in the taller
+  frame.
 - `RedesignButton.qml` and `RedesignPreferenceRow.qml` log
   `popupType is not defined`: `Popup.popupType` is newer than Qt 6.4. The
   popups themselves were not tried.

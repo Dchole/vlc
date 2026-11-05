@@ -122,6 +122,9 @@ class MainCtx : public QObject
     Q_PROPERTY(bool canShowVideoPIP READ canShowVideoPIP CONSTANT FINAL)
     Q_PROPERTY(bool pinVideoControls READ pinVideoControls WRITE setPinVideoControls NOTIFY pinVideoControlsChanged FINAL)
     Q_PROPERTY(float pinOpacity READ pinOpacity WRITE setPinOpacity NOTIFY pinOpacityChanged FINAL)
+    // "Hide UI" of the redesign: in a window, the bars leave the video
+    // as they do in full screen. Not saved, it lasts until VLC quits.
+    Q_PROPERTY(bool hideInterface READ hideInterface WRITE setHideInterface NOTIFY hideInterfaceChanged FINAL)
     Q_PROPERTY(ControlbarProfileModel* controlbarProfileModel READ controlbarProfileModel CONSTANT FINAL)
     Q_PROPERTY(bool hasAcrylicSurface READ hasAcrylicSurface NOTIFY hasAcrylicSurfaceChanged FINAL)
     Q_PROPERTY(bool smoothScroll READ smoothScroll NOTIFY smoothScrollChanged FINAL)
@@ -251,6 +254,7 @@ public:
 
     inline bool pinVideoControls() const { return m_pinVideoControls; }
     inline float pinOpacity() const { return m_pinOpacity; }
+    inline bool hideInterface() const { return m_hideInterface; }
 
     inline ControlbarProfileModel* controlbarProfileModel() const { return m_controlbarProfileModel; }
     inline QUrl getDialogFilePath() const { return m_dialogFilepath; }
@@ -470,6 +474,7 @@ protected:
     /* Pinned */
     bool                 m_pinVideoControls = false;
     float                m_pinOpacity       = 1.0f;
+    bool                 m_hideInterface    = false;
 
     bool                 m_useGlobalShortcuts = true;
     QUrl                 m_dialogFilepath; /* Last path used in dialogs */
@@ -541,6 +546,7 @@ public slots:
 
     void setPinVideoControls( bool );
     void setPinOpacity( float );
+    void setHideInterface( bool );
 
     void setbgCone(bool);
     void updateIntfScaleFactor();
@@ -603,6 +609,7 @@ signals:
 
     void pinVideoControlsChanged();
     void pinOpacityChanged();
+    void hideInterfaceChanged();
 
     void hasAcrylicSurfaceChanged(bool);
 
