@@ -80,6 +80,24 @@ mkdir ../vlc-build && cd ../vlc-build && ../vlc/configure && make -j"$(nproc)"
 `make` rewrites the translations in `po/`; `git checkout -- po` puts them
 back.
 
+The media library is not in Ubuntu 24.04 in a version VLC 4 takes (0.12.3,
+VLC wants 0.13). Build the one `contrib/src/medialibrary/rules.mak` names,
+from its tarball, with the options given there, before configuring VLC:
+
+```sh
+curl -LO https://code.videolan.org/videolan/medialibrary/-/archive/0.13.2/medialibrary-0.13.2.tar.bz2
+sha512sum medialibrary-0.13.2.tar.bz2   # compare with contrib/src/medialibrary/SHA512SUMS
+tar xjf medialibrary-0.13.2.tar.bz2
+sudo apt-get install libsqlite3-dev libutf8proc-dev libxxhash-dev meson
+meson setup ml-build medialibrary-0.13.2 -Dlibvlc=disabled -Dlibtool_workaround=true -Dtests=disabled
+ninja -C ml-build && sudo ninja -C ml-build install && sudo ldconfig
+```
+
+A newer medialibrary (its master) does not build with this VLC. After
+changing the installed version, delete the objects of
+`modules/misc/medialibrary` in the build tree: make does not see the new
+headers, whose dates are those of the tarball.
+
 On a machine without a screen (a server or a cloud container), add `xvfb
 xdotool imagemagick openbox` and let `redesign/tools/shot-linux.sh` start the player
 in memory and take a picture of its window:

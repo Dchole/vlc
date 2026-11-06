@@ -300,6 +300,9 @@ public:
      * they start, what is already running does not hear of it.
      */
     Q_INVOKABLE QVariant option(const QString& name) const;
+    // Whether the welcome screens are to be shown: "qt-onboarding" as set, on
+    // the command line too (option() only reads the configuration).
+    Q_INVOKABLE bool showOnboarding() const;
     Q_INVOKABLE void setOption(const QString& name, const QVariant& value);
 
     Q_INVOKABLE static inline void setCursor(Qt::CursorShape cursor) { QApplication::setOverrideCursor(QCursor(cursor)); }

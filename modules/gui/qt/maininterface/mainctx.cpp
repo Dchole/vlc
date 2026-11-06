@@ -653,6 +653,11 @@ void MainCtx::setHideInterface(bool hideInterface)
     emit hideInterfaceChanged();
 }
 
+bool MainCtx::showOnboarding() const
+{
+    return var_InheritBool(p_intf, "qt-onboarding");
+}
+
 QVariant MainCtx::option(const QString& name) const
 {
     const QByteArray key = name.toUtf8();

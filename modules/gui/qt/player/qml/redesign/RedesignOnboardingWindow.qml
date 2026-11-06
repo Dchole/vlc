@@ -48,10 +48,15 @@ Window {
         // The folder of the first screen joins the media library.
         const folder = folderField.text.trim()
         if (folder.length > 0 && MainCtx.mediaLibraryAvailable) {
-            if (!_folders)
-                _folders = Qt.createQmlObject("import VLC.MediaLibrary; MLFolderModel { ml: MediaLib }",
-                                              root, "onboardingFolders")
-            _folders.add(_url(folder))
+            // The welcome screens close whatever becomes of the folder.
+            try {
+                if (!_folders)
+                    _folders = Qt.createQmlObject("import VLC.MainInterface; import VLC.MediaLibrary; MLFolderModel { ctx: MainCtx }",
+                                                  root, "onboardingFolders")
+                _folders.add(_url(folder))
+            } catch (error) {
+                console.warn("The media folder could not be added:", error)
+            }
         }
 
         MainCtx.setOption("qt-onboarding", false)
@@ -73,7 +78,7 @@ Window {
     }
 
     Component.onCompleted: {
-        if (MainCtx.option("qt-onboarding") === true)
+        if (MainCtx.showOnboarding())
             Qt.callLater(begin)
     }
 

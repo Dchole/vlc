@@ -371,8 +371,11 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   design shows ←/→ and ↑/↓; Show/Hide Queue and File Browser of the
   design have no VLC hotkey and are left out); Finish closes it and saves
   `qt-onboarding=0` and `qt-accent-color=#7360ba`. Without a media library
-  the media folder is disabled with a line that says why; adding the
-  folder (`MLFolderModel.add`) and Browse were not tried. The light half
+  the media folder is disabled with a line that says why. With
+  medialibrary 0.13.2 (the version of `contrib/src/medialibrary`, built
+  from its checked tarball): the field holds `/home/tester/Videos`, and
+  after Finish the library's database has that folder and the two clips
+  put there. Browse was not tried. The light half
   of the System swatch has square corners on its right.
 - Queue panel tabs: Queue, Bookmarks and Chapters, as in the "chapters"
   variant of the control bar (Figma 6321:14024). Seen with a clip that has
