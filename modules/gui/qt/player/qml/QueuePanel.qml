@@ -460,7 +460,8 @@ PlayerPanel {
                 anchors.rightMargin: VLCStyle.dp(20, VLCStyle.scale)
 
                 visible: !!root._bookmarks
-                enabled: Player.isPlaying || Player.playingState === Player.PLAYING_STATE_PAUSED
+                enabled: Player.playingState === Player.PLAYING_STATE_PLAYING
+                         || Player.playingState === Player.PLAYING_STATE_PAUSED
 
                 text: VLCIcons.add
                 description: qsTr("Add a bookmark here")
@@ -515,6 +516,8 @@ PlayerPanel {
         Accessible.role: Accessible.List
 
         T.Label {
+            // Over the list, not in what it scrolls
+            parent: timedList
             anchors.centerIn: parent
             width: parent.width - 2 * VLCStyle.dp(28, VLCStyle.scale)
 

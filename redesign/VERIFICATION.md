@@ -390,8 +390,13 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   with their names and start times (00:00, 00:40, 01:30, 02:30, 03:40),
   the playing one in the accent color from the start; a click on Summer
   plays from 01:30 and marks it. Without a media library the Bookmarks tab
-  says that the library keeps them; its list and add button
-  (`MLBookmarkModel`) were not seen.
+  says that the library keeps them. With it, + adds "Bookmark at 00:17"
+  to the list and to the library's database. Before the fix + was always
+  dimmed (it waited for a `Player.isPlaying` that does not exist). Picking
+  a bookmark and the "No bookmark yet." line of an empty list were not
+  seen.
+- Open Recent of the main menu, with the media library: lists the clip
+  that was played ("clip chapters").
 - Before the fix the chapter list gave its start times as times of the
   clock: the first chapter's 0 was invalid ("--:--") and the others a
   second early (00:39); they are durations now. The playing chapter was

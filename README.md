@@ -121,7 +121,7 @@ but not yet on Windows; what was seen is in
         tests have no real pointer
 - [ ] Bookmarks and chapters panels, subtitle timeline
   - [ ] Chapters tab next to the queue (seen on Linux)
-  - [ ] Bookmarks tab: needs the media library, not seen
+  - [ ] Bookmarks tab: adding one (seen on Linux)
   - [ ] Subtitle timeline: VLC does not give the interface the times of the
         subtitles yet
 - [ ] Full screen: both bars on hover, an option to hide the interface (seen on Linux)
