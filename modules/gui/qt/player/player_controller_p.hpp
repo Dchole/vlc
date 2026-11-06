@@ -144,6 +144,9 @@ public:
 
     SharedInputItem    m_currentItem;
     bool            m_canRestorePlayback = false;
+    // How far into the media playback stopped last time, from the media
+    // library: 0 to 1, -1 if not known
+    float           m_restorePosition = -1.f;
 
     int             m_capabilities = 0;
 

@@ -125,7 +125,7 @@ but not yet on Windows; what was seen is in
   - [ ] Subtitle timeline: VLC does not give the interface the times of the
         subtitles yet
 - [ ] Full screen: both bars on hover, an option to hide the interface (seen on Linux)
-- [ ] Resume prompt next to the playback controls
+- [ ] Resume prompt next to the playback controls (seen on Linux)
 - [ ] Menus: the menu of the top bar, the right-click menu, two-tone icons (seen on Linux)
 - [ ] Music: cover view, waveform seek bar
 

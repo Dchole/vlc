@@ -22,6 +22,7 @@
 
 #include "dialogs/extensions/extensions_manager.hpp"
 #include "player_controller.hpp"
+#include <vlc_media_library.h>
 
 // The presets of the equalizer, which only the equalizer and its settings know
 #include "../../../audio_filter/equalizer_presets.h"
@@ -991,12 +992,36 @@ static void on_player_corks_changed(vlc_player_t *, unsigned, void *data)
     msg_Dbg( that->p_intf, "on_player_corks_changed");
 }
 
-static void on_player_playback_restore_queried(vlc_player_t *, void *data)
+static void on_player_playback_restore_queried(vlc_player_t *player, void *data)
 {
     PlayerControllerPrivate* that = static_cast<PlayerControllerPrivate*>(data);
     msg_Dbg( that->p_intf, "on_playback_restore_queried");
-    that->callAsync([that](){
+
+    // The media library keeps where the media was left, as a part of its
+    // length: the interface says it ("You've watched till ...").
+    float position = -1.f;
+    vlc_medialibrary_t *ml = vlc_ml_instance_get( that->p_intf );
+    input_item_t *item = vlc_player_GetCurrentMedia( player );
+    if ( ml && item )
+    {
+        vlc_mutex_lock( &item->lock );
+        char *uri = item->psz_uri ? strdup( item->psz_uri ) : nullptr;
+        vlc_mutex_unlock( &item->lock );
+        if ( uri )
+        {
+            vlc_ml_media_t *media = vlc_ml_get_media_by_mrl( ml, uri );
+            if ( media )
+            {
+                position = media->f_progress;
+                vlc_ml_release( media );
+            }
+            free( uri );
+        }
+    }
+
+    that->callAsync([that, position](){
         that->m_canRestorePlayback = true;
+        that->m_restorePosition = position;
         emit that->q_func()->playbackRestoreQueried();
     });
 }
@@ -2698,6 +2723,7 @@ PRIMITIVETYPE_GETTER(bool, isRewindable, m_capabilities & VLC_PLAYER_CAP_REWIND)
 PRIMITIVETYPE_GETTER(bool, isPausable, m_capabilities & VLC_PLAYER_CAP_PAUSE)
 PRIMITIVETYPE_GETTER(bool, isRateChangable, m_capabilities & VLC_PLAYER_CAP_CHANGE_RATE)
 PRIMITIVETYPE_GETTER(bool, canRestorePlayback, m_canRestorePlayback);
+PRIMITIVETYPE_GETTER(float, getRestorePosition, m_restorePosition);
 PRIMITIVETYPE_GETTER(float, getSubtitleFPS, m_subtitleFPS)
 PRIMITIVETYPE_GETTER(bool, hasVideoOutput, m_hasVideo)
 PRIMITIVETYPE_GETTER(float, getBuffering, m_buffering)

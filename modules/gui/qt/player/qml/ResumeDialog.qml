@@ -32,6 +32,10 @@ FocusScope {
 
     property int maxWidth
 
+    // Whether this asks at all: the redesign asks next to the playback
+    // controls instead (RedesignResumePrompt.qml).
+    property bool active: true
+
     implicitHeight: continueBtn.y + continueBtn.implicitHeight
     implicitWidth: maxWidth
 
@@ -47,6 +51,8 @@ FocusScope {
 
     function showResumePanel ()
     {
+        if (!active)
+            return
         resumePanel.visible = true
         continueBtn.forceActiveFocus()
         resumeTimeout.start()

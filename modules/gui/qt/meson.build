@@ -746,6 +746,7 @@ qml_modules += {
        'player/qml/redesign/RedesignMenu.qml',
        'player/qml/redesign/RedesignNetworkStreamWindow.qml',
        'player/qml/redesign/RedesignOnboardingWindow.qml',
+       'player/qml/redesign/RedesignResumePrompt.qml',
        'player/qml/redesign/RedesignTheme.qml',
        'player/qml/PlaybackSpeed.qml',
        'player/qml/LyricsFlickable.qml',

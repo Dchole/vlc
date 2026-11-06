@@ -1221,6 +1221,20 @@ FocusScope {
         }
     }
 
+    // Whether to play from where it was left, above the playback controls
+    RedesignResumePrompt {
+        id: resumePrompt
+
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: controlBar.top
+        anchors.bottomMargin: VLCStyle.dp(24, VLCStyle.scale)
+        z: 2
+
+        // The bars stay while it asks.
+        onVisibleChanged: rootPlayer.lockUnlockAutoHide(visible)
+        onHidden: rootPlayer.forceActiveFocus()
+    }
+
     Widgets.FloatingNotification {
         id: notif
 

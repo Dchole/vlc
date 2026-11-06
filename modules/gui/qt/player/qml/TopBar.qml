@@ -650,6 +650,9 @@ FocusScope{
         ResumeDialog {
             id: resumeDialog
 
+            // The redesign asks next to the playback controls, see Player.qml.
+            active: false
+
             anchors.fill: parent
             //add aditional margin so it align with menubar text when visible (see MenuBar.qml)
             anchors.leftMargin: VLCStyle.margin_xsmall

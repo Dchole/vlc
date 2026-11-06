@@ -153,6 +153,8 @@ public:
     Q_PROPERTY(bool ratechangable READ isRateChangable NOTIFY rateChangableChanged FINAL)
 
     Q_PROPERTY(bool canRestorePlayback READ canRestorePlayback NOTIFY playbackRestoreQueried FINAL)
+    // Where the playback that can be restored stopped, 0 to 1, -1 if not known
+    Q_PROPERTY(float restorePosition READ getRestorePosition NOTIFY playbackRestoreQueried FINAL)
 
     // meta
     Q_PROPERTY(QString title READ getTitle NOTIFY currentMetaChanged FINAL)
@@ -345,6 +347,7 @@ public slots:
     void updatePositionFromTimer();
     void updateTimeFromTimer();
     bool canRestorePlayback() const;
+    float getRestorePosition() const;
     void restorePlaybackPos();
     void openVLsub();
     void acknowledgeRestoreCallback();

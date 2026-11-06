@@ -377,6 +377,13 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   after Finish the library's database has that folder and the two clips
   put there. Browse was not tried. The light half
   of the System swatch has square corners on its right.
+- Resume prompt (`RedesignResumePrompt.qml`, Figma 4767:23750), with the
+  media library. Seen: a clip of the library played 44 s and quit (the
+  library keeps 0.147 of its 5 minutes); started again, the prompt comes
+  over the control bar: "You've watched till 00:00:44 already." and
+  Continue Watching; a click on it plays from there (the log has the seek
+  to the kept position). Unanswered, it goes after 10 s and the clip plays
+  from its start, as the old prompt in the top bar did, which is now off.
 - Queue panel tabs: Queue, Bookmarks and Chapters, as in the "chapters"
   variant of the control bar (Figma 6321:14024). Seen with a clip that has
   five chapters (made with ffmpeg): the Chapters tab lists them numbered,
