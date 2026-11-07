@@ -171,6 +171,8 @@ public:
     Q_PROPERTY(VLCDuration subtitleDelay READ getSubtitleDelay WRITE setSubtitleDelay NOTIFY subtitleDelayChanged FINAL)
     Q_PROPERTY(VLCDuration secondarySubtitleDelay READ getSecondarySubtitleDelay WRITE setSecondarySubtitleDelay NOTIFY secondarySubtitleDelayChanged FINAL)
     Q_PROPERTY(int audioDelayMS READ getAudioDelayMS WRITE setAudioDelayMS NOTIFY audioDelayChanged FINAL)
+    // What VLC counts of the playing media, for "Show Statistics"
+    Q_PROPERTY(QVariantMap statistics READ getStatistics NOTIFY statisticsUpdated FINAL)
     Q_PROPERTY(int subtitleDelayMS READ getSubtitleDelayMS WRITE setSubtitleDelayMS NOTIFY subtitleDelayChanged FINAL)
     Q_PROPERTY(int secondarySubtitleDelayMS READ getSecondarySubtitleDelayMS WRITE setSecondarySubtitleDelayMS NOTIFY secondarySubtitleDelayChanged FINAL)
     Q_PROPERTY(float subtitleFPS READ getSubtitleFPS WRITE setSubtitleFPS NOTIFY subtitleFPSChanged FINAL)
@@ -368,6 +370,7 @@ public slots:
     void setSecondarySubtitleDelay( VLCDuration );
     Q_INVOKABLE void addSecondarySubtitleDelay( VLCDuration );
     int getAudioDelayMS() const;
+    QVariantMap getStatistics() const;
     void setAudioDelayMS( int );
     int getSubtitleDelayMS() const;
     void setSubtitleDelayMS( int );

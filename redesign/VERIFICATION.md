@@ -539,6 +539,14 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   off in a preset, several audio tracks. The Figma frame ("Setting Preset",
   2372:8834) could not be looked at (limit on Figma calls); the preset is a
   list in the panel, like the other choices of it.
+- Show Statistics, the other switch of the Playback tab: it saves
+  `qt-show-statistics=1` and a card over the video lists what VLC counts of
+  the playing media (`Player.statistics`, from `input_stats_t`): bitrates,
+  data read, decoded, displayed, late and lost pictures, audio blocks and
+  buffers, corrupted blocks and discontinuities. Seen with a clip: the
+  values grow while it plays (746 then 1023 decoded pictures three seconds
+  later). The late and lost pictures are those of the software rendering of
+  the test screen. The design has no frame for it that could be looked at.
 
 ## Build and test environment
 

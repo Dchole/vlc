@@ -1636,6 +1636,26 @@ void PlayerController::setSecondarySubtitleDelay(VLCDuration delay)
     }
 }
 
+QVariantMap PlayerController::getStatistics() const
+{
+    Q_D(const PlayerController);
+    const input_stats_t& stats = d->m_stats;
+    return {
+        { "inputBitrate", double(stats.f_input_bitrate) * 8000 },   // kb/s
+        { "demuxBitrate", double(stats.f_demux_bitrate) * 8000 },
+        { "readBytes", qulonglong(stats.i_read_bytes) },
+        { "corrupted", qulonglong(stats.i_demux_corrupted) },
+        { "discontinuities", qulonglong(stats.i_demux_discontinuity) },
+        { "decodedVideo", qulonglong(stats.i_decoded_video) },
+        { "displayedPictures", qulonglong(stats.i_displayed_pictures) },
+        { "latePictures", qulonglong(stats.i_late_pictures) },
+        { "lostPictures", qulonglong(stats.i_lost_pictures) },
+        { "decodedAudio", qulonglong(stats.i_decoded_audio) },
+        { "playedAudio", qulonglong(stats.i_played_abuffers) },
+        { "lostAudio", qulonglong(stats.i_lost_abuffers) },
+    };
+}
+
 int PlayerController::getAudioDelayMS() const
 {
     return getAudioDelay().toMilliseconds();

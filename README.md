@@ -109,7 +109,7 @@ but not yet on Windows; what was seen is in
           hand to try it on
     - [ ] "Show Subtitle Timeline on Seekbar" (seen on Linux; from an .srt or
           .vtt next to the media only)
-    - [ ] "Show Statistics": what it switches on does not exist yet
+    - [ ] "Show Statistics": a card of what VLC counts, over the video (seen on Linux)
   - [ ] Presets for a show: speed, delays and tracks for the videos of a folder
         (seen on Linux)
 - [x] Queue panel

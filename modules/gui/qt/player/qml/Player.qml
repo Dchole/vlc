@@ -1276,6 +1276,77 @@ FocusScope {
         onHidden: rootPlayer.forceActiveFocus()
     }
 
+    // "Show Statistics" of the Playback tab: what VLC counts of the media
+    // that plays, over the video at its top left
+    Rectangle {
+        id: statisticsCard
+
+        property bool shown: MainCtx.option("qt-show-statistics") === true
+
+        Connections {
+            target: MainCtx
+            function onOptionChanged(name) {
+                if (name === "qt-show-statistics")
+                    statisticsCard.shown = (MainCtx.option(name) === true)
+            }
+        }
+
+        readonly property real _dp: VLCStyle.dp(1, VLCStyle.scale)
+
+        readonly property var _rows: {
+            const stats = Player.statistics
+            const kb = (value) => qsTr("%1 kb/s").arg(Math.round(value))
+            const rows = [
+                [qsTr("Input bitrate"), kb(stats.inputBitrate)],
+                [qsTr("Content bitrate"), kb(stats.demuxBitrate)],
+                [qsTr("Read"), qsTr("%1 MiB").arg((stats.readBytes / 1048576).toFixed(1))],
+            ]
+            if (Player.hasVideoOutput)
+                rows.push([qsTr("Decoded pictures"), String(stats.decodedVideo)],
+                          [qsTr("Displayed pictures"), String(stats.displayedPictures)],
+                          [qsTr("Late pictures"), String(stats.latePictures)],
+                          [qsTr("Lost pictures"), String(stats.lostPictures)])
+            rows.push([qsTr("Decoded audio blocks"), String(stats.decodedAudio)],
+                      [qsTr("Played audio buffers"), String(stats.playedAudio)],
+                      [qsTr("Lost audio buffers"), String(stats.lostAudio)],
+                      [qsTr("Corrupted / discontinuities"), qsTr("%1 / %2").arg(stats.corrupted).arg(stats.discontinuities)])
+            return rows
+        }
+
+        visible: shown && Player.playingState !== Player.PLAYING_STATE_STOPPED
+        anchors.top: topBar.bottom
+        anchors.left: librarySidebar.visible ? librarySidebar.right : parent.left
+        anchors.margins: 16 * _dp
+        z: 2
+
+        width: statisticsGrid.implicitWidth + 28 * _dp
+        height: statisticsGrid.implicitHeight + 24 * _dp
+        radius: 6 * _dp
+        color: Qt.rgba(0.04, 0.04, 0.04, 0.78)
+
+        Grid {
+            id: statisticsGrid
+            x: 14 * statisticsCard._dp
+            y: 12 * statisticsCard._dp
+            columns: 2
+            columnSpacing: 16 * statisticsCard._dp
+            rowSpacing: 4 * statisticsCard._dp
+
+            Repeater {
+                model: statisticsCard._rows.length * 2
+
+                Text {
+                    required property int index
+                    readonly property var _row: statisticsCard._rows[Math.floor(index / 2)]
+                    text: _row ? _row[index % 2] : ""
+                    color: (index % 2) ? "#C6C6C6" : "#8F8F8F"
+                    font.pixelSize: 12 * statisticsCard._dp
+                    horizontalAlignment: (index % 2) ? Text.AlignRight : Text.AlignLeft
+                }
+            }
+        }
+    }
+
     Widgets.FloatingNotification {
         id: notif
 

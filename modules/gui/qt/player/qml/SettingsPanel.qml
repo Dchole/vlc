@@ -342,6 +342,18 @@ PlayerPanel {
                 onToggled: (checked) => subtitleTimelineOption.set(checked)
             }
 
+            Option {
+                id: statisticsOption
+                name: "qt-show-statistics"
+            }
+
+            // What VLC counts of the playing media, over the video; see Player.qml
+            ToggleSetting {
+                title: qsTr("Show Statistics")
+                checked: (statisticsOption.value === true)
+                onToggled: (checked) => statisticsOption.set(checked)
+            }
+
             SliderSetting {
                 title: qsTr("Speed")
                 valueText: qsTr("%1x").arg(Number(Math.abs(Player.rate).toFixed(2)))
