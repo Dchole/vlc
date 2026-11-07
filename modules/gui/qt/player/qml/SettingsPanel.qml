@@ -196,7 +196,77 @@ PlayerPanel {
         }
     }
 
+    // Presets for a show, see RedesignShowPresets.qml
+    RedesignPreferences { id: presetHelper; ctx: MainCtx }
+
+    // The place in the list of the chosen track, -1 for none
+    function _trackPlace(model) : int {
+        for (let i = 0; i < model.count; ++i)
+            if (model.data(model.index(i, 0), Qt.CheckStateRole))
+                return i
+        return -1
+    }
+
+    function _trackName(model) : string {
+        const place = _trackPlace(model)
+        return (place >= 0) ? model.data(model.index(place, 0), Qt.DisplayRole) : ""
+    }
+
+    function _saveShowPreset() {
+        presetHelper.saveShowPreset(Player.url.toString(), {
+            rate: Player.rate,
+            audioDelay: Player.audioDelayMS,
+            subtitleDelay: Player.subtitleDelayMS,
+            audioTrack: _trackName(Player.audioTracks),
+            audioPlace: _trackPlace(Player.audioTracks),
+            subtitleTrack: _trackName(Player.subtitleTracks),
+            subtitlePlace: _trackPlace(Player.subtitleTracks)
+        })
+    }
+
     TabPage {
+        Group {
+            title: qsTr("Preset")
+            note: presetSetting._saved
+                  ? qsTr("The speed, the delays and the tracks are given to every video of \u201C%1\u201D. Choose it again to keep the settings as they are now.").arg(presetSetting._show)
+                  : qsTr("Keep the speed, the delays and the tracks for every video of this folder.")
+
+            ChoiceSetting {
+                id: presetSetting
+
+                title: qsTr("Preset for This Show")
+
+                readonly property string _url: Player.url.toString()
+                readonly property string _show: (_url.length > 0) ? presetHelper.showName(_url) : ""
+                property bool _saved: false
+
+                function _refresh() {
+                    _saved = (_url.length > 0) && (presetHelper.showPreset(_url).rate !== undefined)
+                }
+
+                on_UrlChanged: _refresh()
+                Component.onCompleted: _refresh()
+
+                enabled: (_show.length > 0)
+                placeholderText: qsTr("Unavailable")
+
+                options: (_show.length > 0)
+                         ? [{ value: 0, text: qsTr("None") },
+                            { value: 1, text: _saved ? _show : qsTr("Save for \u201C%1\u201D").arg(_show) }]
+                         : []
+
+                value: _saved ? 1 : 0
+
+                onChosen: (value) => {
+                    if (value === 1)
+                        root._saveShowPreset()
+                    else
+                        presetHelper.removeShowPreset(_url)
+                    _refresh()
+                }
+            }
+        }
+
         Group {
             ToggleSetting {
                 title: qsTr("Reverse")

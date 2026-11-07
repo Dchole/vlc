@@ -110,7 +110,8 @@ but not yet on Windows; what was seen is in
     - [ ] "Show Subtitle Timeline on Seekbar" (seen on Linux; from an .srt or
           .vtt next to the media only)
     - [ ] "Show Statistics": what it switches on does not exist yet
-  - [ ] Presets for a show
+  - [ ] Presets for a show: speed, delays and tracks for the videos of a folder
+        (seen on Linux)
 - [x] Queue panel
   - [x] The list and its head: how much there is, sort, repeat, shuffle, remove
   - [x] Play a row with a double click, move it by its handle

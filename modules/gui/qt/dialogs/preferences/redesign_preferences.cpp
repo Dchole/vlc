@@ -18,6 +18,7 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QUrl>
+#include <QSettings>
 #include <vlc_interface.h>
 #include "player/player_controller.hpp"
 #include "util/vlchotkeyconverter.hpp"
@@ -776,4 +777,72 @@ QVariantList RedesignPreferences::subtitleCues(const QString& video) const
         cues.append(ms(m, 5));
     }
     return cues;
+}
+
+/* Presets for a show */
+
+namespace {
+
+// The folder of a media, the show; for a URL that is not a file, the URL
+// without its last part
+QString showFolder(const QString& media)
+{
+    const QString path = toLocal(media);
+    if (!path.isEmpty())
+        return QFileInfo(path).absolutePath();
+    const int slash = media.lastIndexOf('/');
+    return slash > 0 ? media.left(slash) : QString();
+}
+
+// A key for QSettings, which takes slashes for groups
+QString showKey(const QString& folder)
+{
+    return QString::fromLatin1(folder.toUtf8().toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals));
+}
+
+}
+
+QString RedesignPreferences::showName(const QString& media) const
+{
+    const QString folder = showFolder(media);
+    const int slash = folder.lastIndexOf('/');
+    return QUrl::fromPercentEncoding(folder.mid(slash + 1).toUtf8());
+}
+
+QVariantMap RedesignPreferences::showPreset(const QString& media) const
+{
+    const QString folder = showFolder(media);
+    if (!m_ctx || folder.isEmpty())
+        return {};
+    QSettings* settings = m_ctx->getIntf()->mainSettings;
+    settings->beginGroup(QStringLiteral("ShowPresets"));
+    const QVariantMap preset = settings->value(showKey(folder)).toMap();
+    settings->endGroup();
+    return preset;
+}
+
+void RedesignPreferences::saveShowPreset(const QString& media, const QVariantMap& preset)
+{
+    const QString folder = showFolder(media);
+    if (!m_ctx || folder.isEmpty())
+        return;
+    QVariantMap stored = preset;
+    stored[QStringLiteral("folder")] = folder;
+    QSettings* settings = m_ctx->getIntf()->mainSettings;
+    settings->beginGroup(QStringLiteral("ShowPresets"));
+    settings->setValue(showKey(folder), stored);
+    settings->endGroup();
+    settings->sync();
+}
+
+void RedesignPreferences::removeShowPreset(const QString& media)
+{
+    const QString folder = showFolder(media);
+    if (!m_ctx || folder.isEmpty())
+        return;
+    QSettings* settings = m_ctx->getIntf()->mainSettings;
+    settings->beginGroup(QStringLiteral("ShowPresets"));
+    settings->remove(showKey(folder));
+    settings->endGroup();
+    settings->sync();
 }

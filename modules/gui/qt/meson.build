@@ -747,6 +747,7 @@ qml_modules += {
        'player/qml/redesign/RedesignIcon.qml',
        'player/qml/redesign/RedesignMenu.qml',
        'player/qml/redesign/RedesignAddSubtitlesWindow.qml',
+       'player/qml/redesign/RedesignShowPresets.qml',
        'player/qml/redesign/RedesignNetworkStreamWindow.qml',
        'player/qml/redesign/RedesignOnboardingWindow.qml',
        'player/qml/redesign/RedesignResumePrompt.qml',

@@ -58,6 +58,14 @@ public:
     // The times, in ms, of the cues of the subtitle file next to a video
     // (.srt or .vtt of the same name), as [start, end, start, end...]
     Q_INVOKABLE QVariantList subtitleCues(const QString& video) const;
+
+    // Presets for a show: the settings kept for the videos of a folder, the
+    // show, and given to each of them when it is opened; see
+    // RedesignShowPresets.qml. media is the URL of one of the videos.
+    Q_INVOKABLE QString showName(const QString& media) const;
+    Q_INVOKABLE QVariantMap showPreset(const QString& media) const;
+    Q_INVOKABLE void saveShowPreset(const QString& media, const QVariantMap& preset);
+    Q_INVOKABLE void removeShowPreset(const QString& media);
     Q_INVOKABLE QVariantMap describe(const QString& name) const;
     Q_INVOKABLE QVariant value(const QString& name) const;
     Q_INVOKABLE QVariantMap equalizerState() const;

@@ -528,6 +528,17 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   timeline (Controls "sub timeline", 3744:12361) could not be looked at
   (the Figma plan's limit on calls was reached), so its look is a guess
   from the frame's name.
+- Presets for a show: "Preset for This Show" at the top of the Playback
+  tab. With speed 1.5x (`]`) and a subtitle delay of 200 ms (`h`), "Save for
+  "Show"" kept them for the folder (`[ShowPresets]` of
+  `vlc-qt-interface.conf`: rate, delays, audio and subtitle track); after a
+  restart of VLC, another episode of the folder opened at 1.5x with the
+  subtitles 0.200 s late; "None" removed it from the file. The name of a
+  subtitle file's track tells its episode ("Track 1 - [S01E03]"), so a
+  track is also found again by its place in the list. Not tried: subtitles
+  off in a preset, several audio tracks. The Figma frame ("Setting Preset",
+  2372:8834) could not be looked at (limit on Figma calls); the preset is a
+  list in the panel, like the other choices of it.
 
 ## Build and test environment
 
