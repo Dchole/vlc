@@ -491,6 +491,28 @@ FocusScope{
                                 onObjectAdded: (index, object) => profileMenu.insertAction(index, object)
                                 onObjectRemoved: (index, object) => profileMenu.removeAction(object)
                             }
+
+                            // A new profile, from the current one (Figma "Profiles", 6648:20666)
+                            T.Action {
+                                property bool divider: true
+                                text: qsTr("New")
+                                icon.source: contextMenu._icons + "add.svg"
+                                // After the menu has closed: the dialog waits for its answer.
+                                onTriggered: Qt.callLater(_ask)
+
+                                function _ask() {
+                                    const profiles = profileMenu._profiles
+                                    const count = profiles.rowCount()
+                                    const answer = DialogsProvider.getTextDialog(null, qsTr("Profile Name"),
+                                                                                 qsTr("Please enter the new profile name:"),
+                                                                                 qsTr("Profile %1").arg(count + 1))
+                                    if (!answer.ok || answer.text.length === 0)
+                                        return
+                                    profiles.cloneSelectedProfile(answer.text)
+                                    profiles.selectedProfile = count
+                                    profiles.save()
+                                }
+                            }
                         }
 
                         T.Action {

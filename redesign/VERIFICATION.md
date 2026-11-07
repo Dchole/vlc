@@ -491,6 +491,18 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   has no QML error or warning left.
 - A click on the video toggles pause: focus the window with
   `xdotool windowactivate` before sending keys in a test.
+- Customize Player, from the menu of the top bar: before the fix the
+  dialog did not open (`ItemDelegate`, `DialogButtonBox`, `ScrollIndicator`
+  and `Label` "is not a type"): the fork had dropped
+  `import QtQuick.Controls.Basic` from files that use those types. With it
+  back in six files, the dialog opens with the instruction of the design
+  ("Drag items from the list into the bars..."), the profile list, and
+  the video, audio and mini player tabs (`design/customize-1.png`). Not
+  done: the design edits the bars over the live player; this keeps VLC's
+  separate editor window. Dragging a control was not tried.
+- Profile submenu of the top bar menu: "New" asks for a name (after the
+  menu has closed) and makes a copy of the current profile under it;
+  "Movies" was made and chosen (`SelectedProfile=5` in the settings).
 
 ## Build and test environment
 

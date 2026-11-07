@@ -158,6 +158,8 @@ but not yet on Windows; what was seen is in
         [redesign/VERIFICATION.md](redesign/VERIFICATION.md) and the
         [reference audit](redesign/design/preferences-audit.md)
 - [ ] Customize mode: move the controls around, profiles
+  - [ ] VLC's editor, opened from the menu, and New profile in the menu
+        (seen on Linux; the bars are edited in a window, not over the player)
 - [ ] Onboarding (seen on Linux)
 
 ### Loose ends

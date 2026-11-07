@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 import QtQuick
+import QtQuick.Controls.Basic
 import QtQuick.Templates as T
 import QtQuick.Layouts
 
@@ -35,7 +36,8 @@ WindowDialog {
     minimumHeight: 400
 
     modal: true
-    title: qsTr("Toolbar Editor")
+    // "Customize Player" of the redesign (Figma "Player - customize")
+    title: qsTr("Customize Player")
 
     signal unload()
 
@@ -85,6 +87,13 @@ WindowDialog {
             anchors.fill: parent
 
             spacing: VLCStyle.margin_small
+
+            Widgets.MenuLabel {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                color: root.colorContext.fg.secondary
+                text: qsTr("Drag items from the list into the bars to add them, around in the bars to re-order them, and out of the bars into the list to remove them from the player.")
+            }
 
             RowLayout {
                 Layout.fillHeight: false
