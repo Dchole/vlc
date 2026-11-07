@@ -134,7 +134,7 @@ but not yet on Windows; what was seen is in
 - [ ] Sidebar over the video: home, videos, music, streams, playlists, pinned
 - [ ] Pages: toolbar with address line, sorting, view modes and search
 - [ ] Context menus of files, folders and playlists
-- [ ] Mini player
+- [ ] Mini player (seen on Linux)
 
 ### Dialogs
 

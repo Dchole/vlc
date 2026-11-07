@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (C) 2020 VLC authors and VideoLAN
+ * Copyright (C) 2019 VLC authors and VideoLAN
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,10 +25,24 @@ import VLC.Playlist
 import VLC.Player
 import VLC.Util
 
+// The mini player of the redesign (Figma "Miniplayer", 970:3091,
+// redesign/design/miniplayer.png): the video in a card over the library,
+// with its progress, its title, where it comes from and who made it, and
+// the queue above it. Over the video: close, back to the player, and the
+// playback buttons.
 T.Control {
     id: root
-    width: Math.round(VLCStyle.dp(320, VLCStyle.scale))
-    height: Math.round(VLCStyle.dp(180, VLCStyle.scale))
+
+    // The card without the queue, as in the design
+    readonly property real cardWidth: VLCStyle.dp(391, VLCStyle.scale)
+    readonly property real cardHeight: VLCStyle.dp(339, VLCStyle.scale)
+    readonly property real queueHeight: VLCStyle.dp(355, VLCStyle.scale)
+
+    // Whether the queue is shown above the card
+    property bool queueOpen: false
+
+    width: cardWidth
+    height: cardHeight + (queueOpen ? queueHeight : 0)
 
     objectName: "pip window"
 
@@ -41,6 +55,23 @@ T.Control {
 
     // `hideControls` being `false` does not necessarily mean that the buttons are shown:
     property bool hideControls: MainCtx.usingTouch // By default controls are hidden with touch
+
+    readonly property RedesignTheme theme: RedesignTheme {
+        scaleFactor: VLCStyle.scale
+        lightTheme: !VLCStyle.palette.isDark
+        accentColor: MainCtx.redesignAccent
+    }
+
+    readonly property bool _ended: Player.playingState === Player.PLAYING_STATE_STOPPED
+
+    readonly property bool _overVideo: videoHover.hovered
+
+    // The folder the media is in, for a media that has no album
+    readonly property string _folder: {
+        const path = decodeURIComponent(String(Player.url))
+        const parts = path.split("/").filter((part) => part.length > 0)
+        return parts.length > 1 ? parts[parts.length - 2] : ""
+    }
 
     Accessible.role: Accessible.Graphic
     Accessible.focusable: false
@@ -57,152 +88,349 @@ T.Control {
         root.anchors.horizontalCenter = undefined
     }
 
-    DoubleClickIgnoringItem {
-        anchors.fill: parent
+    // The queue opens above the card: keep the card where it is.
+    onQueueOpenChanged: {
+        if (root.anchors.bottom === undefined)
+            root.y += queueOpen ? -queueHeight : queueHeight
+    }
 
-        TapHandler {
-            gesturePolicy: TapHandler.WithinBounds
+    DragHandler {
+        id: dragHandler
 
-            onDoubleTapped: (eventPoint, button) => {
-                // Docs are lying, there is no `deviceType`: QTBUG-135104
-                if (eventPoint.device.type !== PointerDevice.TouchScreen)
-                    MainCtx.playerView = true
+        target: root
+
+        cursorShape: Qt.DragMoveCursor
+
+        grabPermissions: PointerHandler.CanTakeOverFromAnything
+
+        xAxis.minimum: root.dragXMin
+        xAxis.maximum: root.dragXMax
+        yAxis.minimum: root.dragYMin
+        yAxis.maximum: root.dragYMax
+    }
+
+    HoverHandler {
+        id: hoverHandler
+        cursorShape: Qt.ArrowCursor
+    }
+
+    background: Rectangle {
+        radius: VLCStyle.dp(14, VLCStyle.scale)
+        color: root.theme.panel
+
+        Widgets.DefaultShadow { }
+    }
+
+    contentItem: Item {
+        // The queue
+        Item {
+            id: queue
+
+            width: parent.width
+            height: root.queueHeight
+            visible: root.queueOpen
+            clip: true
+
+            readonly property PlaylistListModel model: PlaylistListModel {
+                playlist: MainPlaylistController.playlist
             }
 
-            onTapped: (eventPoint, button) => {
-                // Docs are lying, there is no `deviceType`: QTBUG-135104
-                if (eventPoint.device.type === PointerDevice.TouchScreen) {
-                    // Breaking the initial binding is intentional here:
-                    root.hideControls = !root.hideControls
-                } else {
-                    MainPlaylistController.togglePlayPause()
+            Rectangle {
+                width: parent.width; height: VLCStyle.dp(58, VLCStyle.scale)
+                radius: VLCStyle.dp(14, VLCStyle.scale)
+                color: root.theme.hover
+                Rectangle { y: parent.height / 2; width: parent.width; height: parent.height / 2; color: parent.color }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTr("Queue")
+                    color: root.theme.foreground
+                    font.pixelSize: VLCStyle.dp(16, VLCStyle.scale)
+                }
+            }
+
+            Text {
+                x: VLCStyle.dp(36, VLCStyle.scale); y: VLCStyle.dp(82, VLCStyle.scale)
+                text: {
+                    const count = queue.model.count
+                    const items = (count === 1) ? qsTr("1 item") : qsTr("%1 items").arg(count)
+                    const duration = queue.model.duration
+                    if (count === 0 || !duration.valid())
+                        return items
+                    return qsTr("%1 - %2").arg(items).arg(duration.formatShort())
+                }
+                color: root.theme.foreground
+                opacity: 0.7
+                font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+            }
+
+            ListView {
+                x: VLCStyle.dp(24, VLCStyle.scale); y: VLCStyle.dp(120, VLCStyle.scale)
+                width: parent.width - 2 * x
+                height: parent.height - y - VLCStyle.dp(8, VLCStyle.scale)
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                spacing: VLCStyle.dp(12, VLCStyle.scale)
+                model: queue.model
+
+                delegate: T.AbstractButton {
+                    id: queueRow
+
+                    required property int index
+                    required property var model
+
+                    width: ListView.view.width
+                    height: VLCStyle.dp(32, VLCStyle.scale)
+                    text: model.title
+                    Accessible.name: text
+                    onClicked: MainPlaylistController.goTo(index, true)
+
+                    background: Rectangle {
+                        radius: VLCStyle.dp(4, VLCStyle.scale)
+                        color: queueRow.hovered ? root.theme.hover : "transparent"
+                    }
+
+                    contentItem: Item {
+                        Widgets.IconLabel {
+                            x: VLCStyle.dp(8, VLCStyle.scale)
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: VLCIcons.move
+                            font.pixelSize: VLCStyle.icon_normal
+                            color: root.theme.foreground
+                        }
+                        Text {
+                            x: VLCStyle.dp(46, VLCStyle.scale)
+                            width: duration.x - x - VLCStyle.dp(8, VLCStyle.scale)
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: queueRow.text
+                            elide: Text.ElideRight
+                            color: queueRow.model.isCurrent ? root.theme.accent : root.theme.bright
+                            font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+                        }
+                        Text {
+                            id: duration
+                            anchors.right: parent.right
+                            anchors.rightMargin: VLCStyle.dp(8, VLCStyle.scale)
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: queueRow.model.duration.valid() ? queueRow.model.duration.formatShort() : ""
+                            color: root.theme.foreground
+                            opacity: 0.7
+                            font.pixelSize: VLCStyle.dp(14, VLCStyle.scale)
+                        }
+                    }
                 }
             }
         }
 
-        DragHandler {
-            id: dragHandler
+        // The card
+        Item {
+            id: card
 
-            target: root
+            y: root.queueOpen ? root.queueHeight : 0
+            width: parent.width
+            height: root.cardHeight
 
-            cursorShape: Qt.DragMoveCursor
+            // The video, framed
+            Rectangle {
+                id: videoFrame
 
-            dragThreshold: 0
+                x: VLCStyle.dp(9, VLCStyle.scale); y: x
+                width: parent.width - 2 * x
+                height: VLCStyle.dp(209, VLCStyle.scale)
+                radius: VLCStyle.dp(8, VLCStyle.scale)
+                color: "black"
+                border.width: VLCStyle.dp(1, VLCStyle.scale)
+                border.color: root.theme.border
+                clip: true
 
-            grabPermissions: PointerHandler.CanTakeOverFromAnything
+                VideoSurface {
+                    id: videoSurface
+                    anchors.fill: parent
+                    anchors.margins: parent.border.width
+                    videoSurfaceProvider: MainCtx.videoSurfaceProvider
+                }
 
-            xAxis.minimum: root.dragXMin
-            xAxis.maximum: root.dragXMax
-            yAxis.minimum: root.dragYMin
-            yAxis.maximum: root.dragYMax
-        }
+                HoverHandler { id: videoHover }
 
-        HoverHandler {
-            id: hoverHandler
+                DoubleClickIgnoringItem {
+                    anchors.fill: parent
 
-            grabPermissions: PointerHandler.CanTakeOverFromAnything
-            cursorShape: Qt.ArrowCursor
+                    TapHandler {
+                        gesturePolicy: TapHandler.WithinBounds
 
-            Component.onCompleted: {
-                if (typeof blocking === 'boolean')
-                    blocking = true // Qt 6.3 feature
+                        onDoubleTapped: (eventPoint, button) => {
+                            if (eventPoint.device.type !== PointerDevice.TouchScreen)
+                                MainCtx.playerView = true
+                        }
+
+                        onTapped: (eventPoint, button) => {
+                            if (eventPoint.device.type === PointerDevice.TouchScreen)
+                                root.hideControls = !root.hideControls
+                            else
+                                MainPlaylistController.togglePlayPause()
+                        }
+                    }
+                }
+
+                // The buttons over the video, while the pointer is over it
+                Rectangle {
+                    anchors.fill: parent
+                    z: 1
+                    visible: !root.hideControls && (root._overVideo || root._ended)
+                    color: Qt.rgba(0, 0, 0, 0.55)
+                    radius: parent.radius
+
+                    component OverlayButton: Widgets.IconButton {
+                        font.pixelSize: VLCStyle.icon_normal
+                        textStyle: root.textStyle
+                        color: "white"
+                    }
+
+                    OverlayButton {
+                        id: closeButton
+                        x: VLCStyle.dp(12, VLCStyle.scale); y: x
+                        text: VLCIcons.close
+                        description: qsTr("close video")
+                        AccessibleCompat.id: "pipCloseButton"
+                        onClicked: MainPlaylistController.stop()
+                    }
+
+                    OverlayButton {
+                        id: fullscreenButton
+                        anchors.right: parent.right; anchors.rightMargin: VLCStyle.dp(12, VLCStyle.scale)
+                        y: VLCStyle.dp(12, VLCStyle.scale)
+                        text: VLCIcons.open
+                        description: qsTr("maximize player")
+                        AccessibleCompat.id: "pipFullscreenButton"
+                        onClicked: MainCtx.playerView = true
+                    }
+
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: VLCStyle.dp(44, VLCStyle.scale)
+
+                        OverlayButton {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: VLCIcons.previous
+                            description: qsTr("Previous")
+                            enabled: MainPlaylistController.hasPrev
+                            onClicked: MainPlaylistController.prev()
+                        }
+
+                        OverlayButton {
+                            id: playButton
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.pixelSize: VLCStyle.icon_large
+                            description: root._ended ? qsTr("replay") : qsTr("play/pause")
+                            AccessibleCompat.id: "pipPlayButton"
+                            text: root._ended ? VLCIcons.replay
+                                  : (Player.playingState !== Player.PLAYING_STATE_PAUSED ? VLCIcons.pause_filled
+                                                                                       : VLCIcons.play_filled)
+                            onClicked: MainPlaylistController.togglePlayPause()
+                        }
+
+                        OverlayButton {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: VLCIcons.next
+                            description: qsTr("Next")
+                            enabled: MainPlaylistController.hasNext
+                            onClicked: MainPlaylistController.next()
+                        }
+                    }
+                }
             }
-        }
-    }
 
-    background: VideoSurface {
-        id: videoSurface
-        videoSurfaceProvider: MainCtx.videoSurfaceProvider
+            // The progress, which a click moves
+            Rectangle {
+                id: progress
 
-        color: (hoverHandler.hovered ||
-                playButton?.hovered ||
-                closeButton?.hovered ||
-                fullscreenButton?.hovered) ? "#10000000" : "transparent"
+                x: videoFrame.x
+                y: videoFrame.y + videoFrame.height + VLCStyle.dp(6, VLCStyle.scale)
+                width: videoFrame.width
+                height: VLCStyle.dp(14, VLCStyle.scale)
+                radius: height / 2
+                color: root.theme.field
 
-        // It is acceptable for effects to exceed the boundaries of the
-        // parent. They are an exception to the "hypothetical clip test".
-        Widgets.DefaultShadow {
+                Rectangle {
+                    width: Math.max(parent.height, parent.width * Math.max(0, Math.min(1, Player.position)))
+                    height: parent.height
+                    radius: parent.radius
+                    color: root.theme.progress
 
-        }
-    }
+                    Rectangle {
+                        anchors.right: parent.right
+                        width: VLCStyle.dp(8, VLCStyle.scale); height: parent.height
+                        radius: width / 2
+                        color: root.theme.accent
+                        visible: progressMouse.containsMouse || root._overVideo
+                    }
+                }
 
-    contentItem: Item {
-        visible: !root.hideControls &&
-                 (hoverHandler.hovered ||
-                 playButton.hovered ||
-                 closeButton.hovered ||
-                 fullscreenButton.hovered)
-
-        // Raise the content item so that the handlers of the control do
-        // not handle events that are to be handled by the handlers/items
-        // of the content item. Raising the content item should be fine
-        // because content item is supposed to be the foreground item.
-        z: 1
-
-        Widgets.IconButton {
-            id: playButton
-
-            anchors.centerIn: parent
-
-            font.pixelSize: VLCStyle.icon_large
-
-            description: qsTr("play/pause")
-
-            AccessibleCompat.id: "pipPlayButton"
-
-            text: (Player.playingState !== Player.PLAYING_STATE_PAUSED
-                   && Player.playingState !== Player.PLAYING_STATE_STOPPED)
-                  ? VLCIcons.pause_filled
-                  : VLCIcons.play_filled
-
-            textStyle: root.textStyle
-
-            onClicked: MainPlaylistController.togglePlayPause()
-        }
-
-        Widgets.IconButton {
-            id: closeButton
-
-            anchors {
-                top: parent.top
-                topMargin: VLCStyle.margin_small
-                right: parent.right
-                rightMargin: VLCStyle.margin_small
+                MouseArea {
+                    id: progressMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: (mouse) => Player.position = mouse.x / width
+                }
             }
 
-            font.pixelSize: VLCStyle.icon_PIP
-            description: qsTr("close video")
-
-            AccessibleCompat.id: "pipCloseButton"
-
-            text: VLCIcons.close
-
-            textStyle: root.textStyle
-
-            onClicked: MainPlaylistController.stop()
-        }
-
-        Widgets.IconButton {
-            id: fullscreenButton
-
-            anchors {
-                top: parent.top
-                topMargin: VLCStyle.margin_small
-                left: parent.left
-                leftMargin: VLCStyle.margin_small
+            Text {
+                x: VLCStyle.dp(16, VLCStyle.scale)
+                y: progress.y + progress.height + VLCStyle.dp(17, VLCStyle.scale)
+                width: parent.width - 2 * x
+                text: Player.title || Player.name
+                elide: Text.ElideRight
+                color: root.theme.bright
+                font.pixelSize: VLCStyle.dp(16, VLCStyle.scale)
             }
 
-            font.pixelSize: VLCStyle.icon_PIP
+            // Where it comes from and who made it, and the queue
+            Row {
+                x: VLCStyle.dp(16, VLCStyle.scale)
+                y: parent.height - VLCStyle.dp(48, VLCStyle.scale)
+                spacing: VLCStyle.dp(20, VLCStyle.scale)
 
-            description: qsTr("maximize player")
+                component MetaLabel: Row {
+                    property alias icon: metaIcon.text
+                    property alias label: metaText.text
+                    spacing: VLCStyle.dp(8, VLCStyle.scale)
+                    visible: label.length > 0
+                    Widgets.IconLabel {
+                        id: metaIcon
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.pixelSize: VLCStyle.icon_normal
+                        color: root.theme.foreground
+                    }
+                    Text {
+                        id: metaText
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: Math.min(implicitWidth, VLCStyle.dp(120, VLCStyle.scale))
+                        elide: Text.ElideRight
+                        color: root.theme.foreground
+                        font.pixelSize: VLCStyle.dp(16, VLCStyle.scale)
+                    }
+                }
 
-            AccessibleCompat.id: "pipFullscreenButton"
+                MetaLabel {
+                    icon: Player.album ? VLCIcons.album : VLCIcons.folder
+                    label: Player.album || root._folder
+                }
 
-            text: VLCIcons.fullscreen
+                MetaLabel {
+                    icon: VLCIcons.artist
+                    label: Player.artist
+                }
+            }
 
-            textStyle: root.textStyle
-
-            onClicked: MainCtx.playerView = true
+            Widgets.IconButton {
+                anchors.right: parent.right; anchors.rightMargin: VLCStyle.dp(16, VLCStyle.scale)
+                y: parent.height - VLCStyle.dp(48, VLCStyle.scale)
+                font.pixelSize: VLCStyle.icon_normal
+                text: VLCIcons.queue
+                description: qsTr("Queue")
+                color: root.queueOpen ? root.theme.accent : root.theme.foreground
+                onClicked: root.queueOpen = !root.queueOpen
+            }
         }
     }
 }

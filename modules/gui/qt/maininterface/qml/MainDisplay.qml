@@ -989,8 +989,7 @@ FocusScope {
                 leftMargin: VLCStyle.margin_normal + VLCStyle.applicationHorizontalMargin
             }
 
-            width: VLCStyle.dp(320, VLCStyle.scale)
-            height: VLCStyle.dp(180, VLCStyle.scale)
+            // Its size is that of the card of the redesign, and its queue.
             z: 4
             visible: g_mainDisplay._showMiniPlayer && MainCtx.hasEmbededVideo
             enabled: g_mainDisplay._showMiniPlayer && MainCtx.hasEmbededVideo

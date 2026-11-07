@@ -377,6 +377,14 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   after Finish the library's database has that folder and the two clips
   put there. Browse was not tried. The light half
   of the System swatch has square corners on its right.
+- Mini player (`PIPPlayer.qml`, Figma 970:3091, `design/miniplayer.png`):
+  going to the library while a video plays shows the card: the video
+  framed, its progress, its title, its folder ("Videos"; the album when
+  it has one) and artist, and the queue button. Seen: with the pointer
+  over the video, close, back to the player and Previous / Pause / Next;
+  the queue button opens the queue above the card (2 items, the playing
+  one in the accent color). Not tried: the replay button at the end, a
+  click on the progress or on a queue row, dragging the card.
 - Resume prompt (`RedesignResumePrompt.qml`, Figma 4767:23750), with the
   media library. Seen: a clip of the library played 44 s and quit (the
   library keeps 0.147 of its 5 minutes); started again, the prompt comes
