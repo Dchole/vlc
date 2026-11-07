@@ -610,6 +610,12 @@ Rectangle {
                 Qt.openUrlExternally(mrl.substring(0, mrl.lastIndexOf("/")))
             }
         }
+        T.Action {
+            text: qsTr("Add Subtitle Tracks")
+            icon.source: root._icons + "subtitles-two-tone.svg"
+            enabled: String(root._menuData?.mrl ?? "").startsWith("file://")
+            onTriggered: DialogsProvider.showRedesignAddSubtitles(String(root._menuData.mrl), false)
+        }
         T.Action { property bool divider: true; text: qsTr("Properties & Metadata"); icon.source: root._icons + "info-two-tone.svg"; onTriggered: DialogsProvider.mediaInfoDialog(root._menuData.id) }
     }
 
@@ -620,6 +626,12 @@ Rectangle {
         T.Action { text: qsTr("Play"); icon.source: root._icons + "playback-two-tone.svg"; onTriggered: MediaLib.addAndPlay(root._menuIds()) }
         T.Action { text: qsTr("Add to Queue"); icon.source: root._icons + "queue-two-tone.svg"; onTriggered: MediaLib.addToPlaylist(root._menuIds()) }
         T.Action { text: qsTr("Add Folder"); icon.source: root._icons + "new-folder-two-tone.svg"; onTriggered: root._addFolder() }
+        T.Action {
+            text: qsTr("Edit Subtitle Tracks")
+            icon.source: root._icons + "subtitles-two-tone.svg"
+            enabled: String(root._menuData?.mrl ?? "").startsWith("file://")
+            onTriggered: DialogsProvider.showRedesignAddSubtitles(String(root._menuData.mrl), true)
+        }
         T.Action { text: qsTr("Resync"); icon.source: root._icons + "refresh-two-tone.svg"; onTriggered: MediaLib.reload() }
     }
 

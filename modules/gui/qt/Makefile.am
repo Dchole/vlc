@@ -1234,6 +1234,7 @@ libqml_module_player_a_QML = \
 	player/qml/redesign/RedesignButton.qml \
 	player/qml/redesign/RedesignIcon.qml \
 	player/qml/redesign/RedesignMenu.qml \
+	player/qml/redesign/RedesignAddSubtitlesWindow.qml \
 	player/qml/redesign/RedesignNetworkStreamWindow.qml \
 	player/qml/redesign/RedesignOnboardingWindow.qml \
 	player/qml/redesign/RedesignResumePrompt.qml \

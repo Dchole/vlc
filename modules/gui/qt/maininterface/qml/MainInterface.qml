@@ -49,6 +49,7 @@ Item {
     RedesignPreferencesWindow { }
     RedesignNetworkStreamWindow { }
     RedesignOnboardingWindow { }
+    RedesignAddSubtitlesWindow { }
 
     // New Playlist of the redesign, made of the media library's types,
     // which only exist with one.

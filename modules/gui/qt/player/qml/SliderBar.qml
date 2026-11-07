@@ -24,6 +24,7 @@ import VLC.Widgets as Widgets
 import VLC.Style
 import VLC.Util
 import VLC.MainInterface
+import VLC.Dialogs
 
 T.ProgressBar {
     id: control
@@ -51,6 +52,41 @@ T.ProgressBar {
 
     readonly property real _hoveredScalingFactor: thick ? 1.0 : 1.8
     property int barHeight: VLCStyle.dp(5, VLCStyle.scale)
+
+    // "Show Subtitle Timeline on Seekbar", of the Playback tab of the settings
+    property bool _subtitleTimeline: MainCtx.option("qt-subtitle-timeline") === true
+    // The times of the subtitles of the media, in ms: [start, end, ...]
+    property var _cues: []
+
+    function _loadCues() {
+        _cues = (thick && _subtitleTimeline) ? subtitleFiles.subtitleCues(Player.url.toString()) : []
+    }
+
+    RedesignPreferences { id: subtitleFiles; ctx: MainCtx }
+
+    Connections {
+        target: MainCtx
+        function onOptionChanged(name) {
+            if (name === "qt-subtitle-timeline") {
+                control._subtitleTimeline = (MainCtx.option(name) === true)
+                control._loadCues()
+            }
+        }
+    }
+
+    Connections {
+        target: Player
+        function onInputChanged() { control._loadCues() }
+        function onLengthChanged() { control._loadCues() }
+    }
+
+    // A subtitle file that is added to the media, by Add Subtitles for one
+    Connections {
+        target: Player.subtitleTracks
+        function onRowsInserted() { control._loadCues() }
+        function onModelReset() { control._loadCues() }
+    }
+
 
     // Whether the pointer is over the bar, and where as a fraction of its
     // width. This is for the preview of the frame at that position.
@@ -225,7 +261,7 @@ T.ProgressBar {
         function onInputChanged() {  fsm.inputChanged() }
     }
 
-    Component.onCompleted: value = Player.position
+    Component.onCompleted: { value = Player.position; _loadCues() }
 
     implicitHeight: control.barHeight
     height: implicitHeight
@@ -531,6 +567,64 @@ T.ProgressBar {
                 when: (progressRect.mutabilityGroup !== undefined)
                 value: (Player.playingState === Player.PLAYING_STATE_PLAYING) ? Item.DynamicMutabilityGroup
                                                                               : Item.StaticMutabilityGroup
+            }
+        }
+
+        // The subtitle timeline (Figma, Controls "sub timeline", 3744:12361):
+        // a mark along the foot of the bar for each time a subtitle is shown.
+        // VLC does not give the interface the times of the subtitles, so they
+        // are read from the .srt or .vtt file next to the media, the one VLC
+        // loads with it by itself; other subtitles show no mark.
+        Item {
+            id: subtitleTimeline
+
+            visible: control.thick && _segments.length > 0
+            x: control._thickInset + control._thickRadius
+            y: control._segmentY + control._segmentHeight - height - VLCStyle.dp(2, VLCStyle.scale)
+            width: parent.width - 2 * x
+            height: VLCStyle.dp(3, VLCStyle.scale)
+
+            // The cues as parts of the bar, those less than two pixels apart
+            // joined, moved by the subtitle delay
+            readonly property var _segments: {
+                const length = Player.length.toMilliseconds()
+                const cues = control._cues
+                if (!control.thick || length <= 0 || width <= 0 || cues.length < 2)
+                    return []
+                const delay = Player.subtitleDelayMS
+                const pairs = []
+                for (let i = 0; i + 1 < cues.length; i += 2) {
+                    const start = Math.max(0, cues[i] + delay)
+                    const end = Math.min(length, cues[i + 1] + delay)
+                    if (end > start)
+                        pairs.push([start, end])
+                }
+                pairs.sort((a, b) => a[0] - b[0])
+                const gap = 2 * length / width
+                const joined = []
+                for (const pair of pairs) {
+                    const last = joined[joined.length - 1]
+                    if (last && pair[0] - last[1] < gap)
+                        last[1] = Math.max(last[1], pair[1])
+                    else
+                        joined.push(pair.slice())
+                }
+                return joined.map((pair) => [pair[0] / length, pair[1] / length])
+            }
+
+            Repeater {
+                model: subtitleTimeline._segments
+
+                Rectangle {
+                    required property var modelData
+
+                    x: modelData[0] * subtitleTimeline.width
+                    width: Math.max(VLCStyle.dp(2, VLCStyle.scale), (modelData[1] - modelData[0]) * subtitleTimeline.width)
+                    height: subtitleTimeline.height
+                    radius: height / 2
+                    color: (x + subtitleTimeline.x < control._thickPlayedEnd) ? Qt.alpha(theme.fg.primary, 0.7)
+                                                                              : Qt.alpha(theme.accent, 0.8)
+                }
             }
         }
 

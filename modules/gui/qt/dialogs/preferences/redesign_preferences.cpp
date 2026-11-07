@@ -12,6 +12,14 @@
 #include <QScreen>
 #include <QKeyEvent>
 #include <QLocale>
+#include <QCollator>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QRegularExpression>
+#include <QUrl>
+#include <vlc_interface.h>
+#include "player/player_controller.hpp"
 #include "util/vlchotkeyconverter.hpp"
 #include "../../../../audio_filter/equalizer_presets.h"
 
@@ -514,4 +522,258 @@ bool RedesignPreferences::assignShortcut(const QString& name, const QString& sho
     bindings.removeAll(shortcut);
     bindings.prepend(shortcut);
     return stage(name, bindings.join(QLatin1Char('\t')));
+}
+
+/* Subtitle files on disk */
+
+namespace {
+
+QStringList nameFilters(const char* list)
+{
+    return QString::fromLatin1(list).split(';', Qt::SkipEmptyParts);
+}
+
+QString toLocal(const QString& urlOrPath)
+{
+    const QUrl url(urlOrPath);
+    if (url.isLocalFile())
+        return url.toLocalFile();
+    if (url.scheme().isEmpty())
+        return urlOrPath;
+    return {};
+}
+
+QString toUrl(const QString& path)
+{
+    return QUrl::fromLocalFile(path).toString(QUrl::FullyEncoded);
+}
+
+void sortNaturally(QFileInfoList& files)
+{
+    QCollator collator;
+    collator.setNumericMode(true);
+    collator.setCaseSensitivity(Qt::CaseInsensitive);
+    std::sort(files.begin(), files.end(), [&](const QFileInfo& a, const QFileInfo& b) {
+        return collator.compare(a.fileName(), b.fileName()) < 0;
+    });
+}
+
+// "s1e2" for S01E02, 1x02 or Season 1 Episode 2; empty when there is none
+QString episodeKey(const QString& name)
+{
+    static const QRegularExpression patterns[] = {
+        QRegularExpression(QStringLiteral("s(\\d{1,3})[ ._-]*e(\\d{1,4})"),
+                           QRegularExpression::CaseInsensitiveOption),
+        QRegularExpression(QStringLiteral("(?<![0-9])(\\d{1,2})x(\\d{1,4})(?![0-9])"),
+                           QRegularExpression::CaseInsensitiveOption),
+        QRegularExpression(QStringLiteral("season[ ._-]*(\\d+)[ ._-]*episode[ ._-]*(\\d+)"),
+                           QRegularExpression::CaseInsensitiveOption),
+    };
+    for (const QRegularExpression& pattern : patterns)
+    {
+        const QRegularExpressionMatch match = pattern.match(name);
+        if (match.hasMatch())
+            return QStringLiteral("s%1e%2").arg(match.captured(1).toInt()).arg(match.captured(2).toInt());
+    }
+    return {};
+}
+
+// The subtitle files next to a video that VLC loads with it: those whose
+// name starts with the name of the video
+QFileInfoList subtitlesBeside(const QFileInfo& video, const QStringList& filters)
+{
+    QFileInfoList found;
+    const QString base = video.completeBaseName();
+    for (const QFileInfo& file : video.dir().entryInfoList(filters, QDir::Files | QDir::Readable))
+        if (file.fileName().startsWith(base, Qt::CaseInsensitive))
+            found.append(file);
+    sortNaturally(found);
+    return found;
+}
+
+bool sameContent(const QString& a, const QString& b)
+{
+    QFile fa(a), fb(b);
+    if (fa.size() != fb.size() || fa.size() > 16 * 1024 * 1024)
+        return false;
+    if (!fa.open(QIODevice::ReadOnly) || !fb.open(QIODevice::ReadOnly))
+        return false;
+    return fa.readAll() == fb.readAll();
+}
+
+}
+
+QStringList RedesignPreferences::videosIn(const QString& folder) const
+{
+    const QString path = toLocal(folder);
+    if (path.isEmpty())
+        return {};
+    QFileInfoList files = QDir(path).entryInfoList(nameFilters(EXTENSIONS_VIDEO),
+                                                   QDir::Files | QDir::Readable);
+    sortNaturally(files);
+    QStringList urls;
+    for (const QFileInfo& file : files)
+        urls.append(toUrl(file.absoluteFilePath()));
+    return urls;
+}
+
+QStringList RedesignPreferences::chooseSubtitleFiles(bool multiple, const QString& folder)
+{
+    const QUrl start = folder.isEmpty() ? QUrl() : QUrl::fromLocalFile(toLocal(folder));
+    const QString filter = qtr("Subtitle files") + " (" + nameFilters(EXTENSIONS_SUBTITLE).join(' ')
+                           + ");;" + qtr("All files") + " (*)";
+    QList<QUrl> picked;
+    if (multiple)
+        picked = QFileDialog::getOpenFileUrls(nullptr, qtr("Select subtitle files"), start, filter);
+    else
+    {
+        const QUrl url = QFileDialog::getOpenFileUrl(nullptr, qtr("Select a subtitle file"), start, filter);
+        if (!url.isEmpty())
+            picked.append(url);
+    }
+    QStringList urls;
+    for (const QUrl& url : picked)
+        urls.append(url.toString(QUrl::FullyEncoded));
+    return urls;
+}
+
+QVariantList RedesignPreferences::pairSubtitles(const QStringList& videos, const QStringList& subtitles) const
+{
+    QFileInfoList subFiles;
+    for (const QString& url : subtitles)
+    {
+        const QString path = toLocal(url);
+        if (!path.isEmpty())
+            subFiles.append(QFileInfo(path));
+    }
+    sortNaturally(subFiles);
+
+    QList<QFileInfo> videoFiles;
+    for (const QString& url : videos)
+        videoFiles.append(QFileInfo(toLocal(url)));
+
+    QVector<int> match(videoFiles.size(), -1);
+    QVector<bool> used(subFiles.size(), false);
+    const auto pass = [&](auto fits) {
+        for (int v = 0; v < videoFiles.size(); ++v)
+        {
+            if (match[v] >= 0)
+                continue;
+            for (int s = 0; s < subFiles.size(); ++s)
+                if (!used[s] && fits(videoFiles[v], subFiles[s]))
+                {
+                    match[v] = s;
+                    used[s] = true;
+                    break;
+                }
+        }
+    };
+    // By name: Movie.en.srt goes with Movie.mp4
+    pass([](const QFileInfo& v, const QFileInfo& s) {
+        return s.fileName().startsWith(v.completeBaseName(), Qt::CaseInsensitive);
+    });
+    // By episode
+    pass([](const QFileInfo& v, const QFileInfo& s) {
+        const QString key = episodeKey(v.fileName());
+        return !key.isEmpty() && key == episodeKey(s.fileName());
+    });
+    // By order, when as many are left on both sides
+    QVector<int> videosLeft, subsLeft;
+    for (int v = 0; v < videoFiles.size(); ++v)
+        if (match[v] < 0)
+            videosLeft.append(v);
+    for (int s = 0; s < subFiles.size(); ++s)
+        if (!used[s])
+            subsLeft.append(s);
+    if (videosLeft.size() == subsLeft.size())
+        for (int i = 0; i < videosLeft.size(); ++i)
+            match[videosLeft[i]] = subsLeft[i];
+
+    const QStringList filters = nameFilters(EXTENSIONS_SUBTITLE);
+    QVariantList rows;
+    for (int v = 0; v < videoFiles.size(); ++v)
+    {
+        const QFileInfo& video = videoFiles[v];
+        QVariantMap row;
+        row["video"] = videos[v];
+        row["videoName"] = video.fileName();
+        row["subtitle"] = match[v] >= 0 ? toUrl(subFiles[match[v]].absoluteFilePath()) : QString();
+        row["subtitleName"] = match[v] >= 0 ? subFiles[match[v]].fileName() : QString();
+        const QFileInfoList beside = video.exists() ? subtitlesBeside(video, filters) : QFileInfoList();
+        row["existing"] = beside.isEmpty() ? QString() : beside.first().fileName();
+        rows.append(row);
+    }
+    return rows;
+}
+
+QVariantMap RedesignPreferences::saveSubtitles(const QVariantList& rows)
+{
+    PlayerController* player = m_ctx ? m_ctx->getIntf()->p_mainPlayerController : nullptr;
+    const QString playing = player ? QFileInfo(toLocal(player->getUrl().toString(QUrl::FullyEncoded)))
+                                         .absoluteFilePath()
+                                   : QString();
+    int saved = 0;
+    QStringList failed;
+    for (const QVariant& value : rows)
+    {
+        const QVariantMap row = value.toMap();
+        const QString videoPath = toLocal(row.value("video").toString());
+        const QString subPath = toLocal(row.value("subtitle").toString());
+        if (videoPath.isEmpty() || subPath.isEmpty())
+            continue;
+        const QFileInfo video(videoPath), sub(subPath);
+        const QString base = video.dir().filePath(video.completeBaseName());
+        QString dest = base + '.' + sub.suffix();
+        bool copied = false;
+        if (sub.absoluteFilePath() == QFileInfo(dest).absoluteFilePath())
+            copied = true; // already in place
+        else
+        {
+            for (int n = 1; QFile::exists(dest) && !sameContent(dest, subPath); ++n)
+                dest = base + '.' + QString::number(n) + '.' + sub.suffix();
+            copied = QFile::exists(dest) || QFile::copy(subPath, dest);
+        }
+        if (!copied)
+        {
+            failed.append(sub.fileName());
+            continue;
+        }
+        ++saved;
+        if (player && video.absoluteFilePath() == playing)
+            player->associateSubtitleFile(toUrl(dest));
+    }
+    return { { "saved", saved }, { "failed", failed } };
+}
+
+QVariantList RedesignPreferences::subtitleCues(const QString& video) const
+{
+    const QString path = toLocal(video);
+    if (path.isEmpty())
+        return {};
+    const QFileInfo info(path);
+    if (!info.exists())
+        return {};
+    const QFileInfoList files = subtitlesBeside(info, { QStringLiteral("*.srt"), QStringLiteral("*.vtt") });
+    if (files.isEmpty())
+        return {};
+    QFile file(files.first().absoluteFilePath());
+    if (file.size() > 16 * 1024 * 1024 || !file.open(QIODevice::ReadOnly))
+        return {};
+    const QString text = QString::fromUtf8(file.readAll());
+    static const QRegularExpression timing(QStringLiteral(
+        "(?:(\\d+):)?(\\d{1,2}):(\\d{2})[,.](\\d{1,3})\\s*-->\\s*(?:(\\d+):)?(\\d{1,2}):(\\d{2})[,.](\\d{1,3})"));
+    const auto ms = [](const QRegularExpressionMatch& m, int first) {
+        return ((m.captured(first).toLongLong() * 60 + m.captured(first + 1).toLongLong()) * 60
+                + m.captured(first + 2).toLongLong()) * 1000
+               + m.captured(first + 3).leftJustified(3, '0').toLongLong();
+    };
+    QVariantList cues;
+    auto it = timing.globalMatch(text);
+    while (it.hasNext())
+    {
+        const QRegularExpressionMatch m = it.next();
+        cues.append(ms(m, 1));
+        cues.append(ms(m, 5));
+    }
+    return cues;
 }

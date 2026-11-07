@@ -295,6 +295,9 @@ signals:
     void showRedesignNetworkStream();
     // "New Playlist" of the redesign, RedesignNewPlaylistWindow.qml.
     void showRedesignNewPlaylist();
+    // "Add Subtitles" of the redesign, RedesignAddSubtitlesWindow.qml: for
+    // the videos of a folder or for one file (URLs); empty for the playing one.
+    void showRedesignAddSubtitles(const QString& target, bool folder);
     void showToolbarEditorDialog();
 
     //visiblity signal

@@ -260,6 +260,18 @@ PlayerPanel {
                 model: Player.audioVisualization
             }
 
+            Option {
+                id: subtitleTimelineOption
+                name: "qt-subtitle-timeline"
+            }
+
+            // Marks on the seek bar where there are subtitles; see SliderBar.qml
+            ToggleSetting {
+                title: qsTr("Show Subtitle Timeline on Seekbar")
+                checked: (subtitleTimelineOption.value === true)
+                onToggled: (checked) => subtitleTimelineOption.set(checked)
+            }
+
             SliderSetting {
                 title: qsTr("Speed")
                 valueText: qsTr("%1x").arg(Number(Math.abs(Player.rate).toFixed(2)))

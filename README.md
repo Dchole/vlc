@@ -107,8 +107,9 @@ but not yet on Windows; what was seen is in
     - [x] Audio visualizer: Spectrometer and Disable
     - [ ] Reverse: the switch is there, nothing that plays backwards was at
           hand to try it on
-    - [ ] "Show Subtitle Timeline on Seekbar" and "Show Statistics": what they
-          switch on does not exist yet
+    - [ ] "Show Subtitle Timeline on Seekbar" (seen on Linux; from an .srt or
+          .vtt next to the media only)
+    - [ ] "Show Statistics": what it switches on does not exist yet
   - [ ] Presets for a show
 - [x] Queue panel
   - [x] The list and its head: how much there is, sort, repeat, shuffle, remove
@@ -122,8 +123,8 @@ but not yet on Windows; what was seen is in
 - [ ] Bookmarks and chapters panels, subtitle timeline
   - [ ] Chapters tab next to the queue (seen on Linux)
   - [ ] Bookmarks tab: adding one (seen on Linux)
-  - [ ] Subtitle timeline: VLC does not give the interface the times of the
-        subtitles yet
+  - [ ] Subtitle timeline (seen on Linux): read from the subtitle file next to
+        the media, as VLC does not give the interface the times of subtitles
 - [ ] Full screen: both bars on hover, an option to hide the interface (seen on Linux)
 - [ ] Resume prompt next to the playback controls (seen on Linux)
 - [ ] Menus: the menu of the top bar, the right-click menu, two-tone icons (seen on Linux)
@@ -145,6 +146,9 @@ but not yet on Windows; what was seen is in
   - [ ] Open network stream (seen on Linux)
   - [ ] New playlist (seen on Linux)
 - [ ] Add subtitles to a file, a folder or a playlist
+  - [ ] A file or a folder, from the computer (seen on Linux)
+  - [ ] From OpenSubtitles: hands over to VLSub, not tried
+  - [ ] A playlist: not done
 - [x] Keyboard shortcuts
   - [x] The nine reference actions, editing and saving, a conflict cancelled,
         and the saved shortcut still present after a restart

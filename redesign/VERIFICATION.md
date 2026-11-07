@@ -503,6 +503,31 @@ The clip is a 5 minute color-bar video made with ffmpeg.
 - Profile submenu of the top bar menu: "New" asks for a name (after the
   menu has closed) and makes a copy of the current profile under it;
   "Movies" was made and chosen (`SelectedProfile=5` in the settings).
+- Add Subtitles (`design/add-subtitles-1.png`), from "Edit Subtitle
+  Tracks" of a folder's menu and "Add Subtitle Tracks" of a file's menu in
+  the library sidebar. Seen: for a folder of three episodes
+  (`The_Wand_S01E01.mp4`...) and three files picked elsewhere
+  (`the.wand.s01e01.en.srt`...), each episode is matched to its file by
+  S01E0x although the names differ; Save copies them next to the videos as
+  `The_Wand_S01E01.srt`... with the content of the right episode, and the
+  dialog opened again shows them dimmed as "already there". For one file,
+  the one that plays: Save copies the subtitle and the player loads it at
+  once (`loading spu slave: .../The_Wand_S01E02.srt` in the log). Both lists
+  of the dialog open; the file dialog opens in the folder of the videos.
+  Not tried: "From OpenSubtitles", which hands over to VLC's VLSub
+  extension (the test machine has no account or network for it); names
+  that match neither by name nor by episode are paired by order only when
+  as many are on both sides.
+- Subtitle timeline: "Show Subtitle Timeline on Seekbar" in the Playback
+  tab saves `qt-subtitle-timeline=1`. With an .srt next to a 60 s clip
+  (cues at 2-5 s, 10-12.5 s, 20-28 s, 40-41 s), marks show along the foot of
+  the bar at those places; after Add Subtitles saved one for the playing
+  video, its marks showed without opening it again. Only .srt and .vtt
+  files next to the media are read: VLC gives the interface no times of
+  subtitles, so embedded tracks show no mark. The Figma frame of the
+  timeline (Controls "sub timeline", 3744:12361) could not be looked at
+  (the Figma plan's limit on calls was reached), so its look is a guess
+  from the frame's name.
 
 ## Build and test environment
 

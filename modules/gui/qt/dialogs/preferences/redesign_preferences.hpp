@@ -39,6 +39,25 @@ public:
     // Files picked in the dialog of the system, as URLs
     Q_INVOKABLE QStringList chooseFiles();
     Q_INVOKABLE QString chooseColor(const QString& initial);
+
+    // Subtitle files on disk, for the Add Subtitles dialog and the subtitle
+    // timeline of the seek bar. Files are given as URLs.
+    // The videos of a folder, in the order of their names
+    Q_INVOKABLE QStringList videosIn(const QString& folder) const;
+    // Subtitle files picked in the dialog of the system, which opens in folder
+    Q_INVOKABLE QStringList chooseSubtitleFiles(bool multiple, const QString& folder = QString());
+    // Rows of {video, videoName, subtitle, subtitleName, existing}: each
+    // video with the subtitle that goes with it, by name, by episode
+    // (S01E02, 1x02) or else by order; existing is a file that is already
+    // next to the video and that VLC loads by itself.
+    Q_INVOKABLE QVariantList pairSubtitles(const QStringList& videos, const QStringList& subtitles) const;
+    // Copies each subtitle next to its video under the name of the video,
+    // so that VLC loads it with the video; the one of the playing video is
+    // also added to it. Returns {saved, failed: [names]}.
+    Q_INVOKABLE QVariantMap saveSubtitles(const QVariantList& rows);
+    // The times, in ms, of the cues of the subtitle file next to a video
+    // (.srt or .vtt of the same name), as [start, end, start, end...]
+    Q_INVOKABLE QVariantList subtitleCues(const QString& video) const;
     Q_INVOKABLE QVariantMap describe(const QString& name) const;
     Q_INVOKABLE QVariant value(const QString& name) const;
     Q_INVOKABLE QVariantMap equalizerState() const;

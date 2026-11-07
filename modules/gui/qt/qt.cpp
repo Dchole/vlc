@@ -297,6 +297,9 @@ static void ShowDialog   ( intf_thread_t *, int, int, intf_dialog_args_t * );
 #define PIP_MODE_LONGTEXT N_( "Picture-in-picture mode allows playing video contained in a smaller area so that the interface remains usable." )
 
 #define ACCENT_COLOR_TEXT N_( "Accent color" )
+#define SUBTITLE_TIMELINE_TEXT N_( "Show the subtitle timeline on the seek bar" )
+#define SUBTITLE_TIMELINE_LONGTEXT N_( "Mark on the seek bar the times when " \
+    "subtitles are shown, from the subtitle file next to the media." )
 #define ONBOARDING_TEXT N_( "Show the welcome screens" )
 #define ONBOARDING_LONGTEXT N_( "Show the welcome screens of the interface " \
                             "(media folder, theme and color, basic shortcuts) " \
@@ -486,6 +489,7 @@ vlc_module_begin ()
 
     add_string( "qt-accent-color", "default", ACCENT_COLOR_TEXT, ACCENT_COLOR_LONGTEXT )
     add_bool( "qt-onboarding", true, ONBOARDING_TEXT, ONBOARDING_LONGTEXT )
+    add_bool( "qt-subtitle-timeline", false, SUBTITLE_TIMELINE_TEXT, SUBTITLE_TIMELINE_LONGTEXT )
 
     cannot_unload_broken_library()
 
