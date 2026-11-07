@@ -134,8 +134,9 @@ but not yet on Windows; what was seen is in
 
 ### Library
 
-- [ ] Sidebar over the video: home, videos, music, streams, playlists, pinned
-      (seen on Linux, without pinned items)
+- [ ] Sidebar over the video: home, videos, music, streams, playlists, recent,
+      and + to add a folder (seen on Linux; the design's frames have no
+      pinned items, `design/sidebar.png`)
 - [ ] Pages: toolbar with address line, sorting, view modes and search
       (in the sidebar, seen on Linux; the library window keeps VLC's pages)
 - [ ] Context menus of files, folders and playlists (in the sidebar, seen on Linux)
@@ -171,6 +172,7 @@ but not yet on Windows; what was seen is in
 
 - [ ] Inter as the font of the interface (seen on Linux)
 - [ ] The build does not quit within a few seconds and can leave a process behind
+      (Windows; the Linux build quits in about a second)
 - [ ] "External Tracks" of the subtitles tab has no list of its own (fixed, seen on Linux)
 
 ---
