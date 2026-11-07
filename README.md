@@ -133,15 +133,17 @@ but not yet on Windows; what was seen is in
 ### Library
 
 - [ ] Sidebar over the video: home, videos, music, streams, playlists, pinned
+      (seen on Linux, without pinned items)
 - [ ] Pages: toolbar with address line, sorting, view modes and search
-- [ ] Context menus of files, folders and playlists
+      (in the sidebar, seen on Linux; the library window keeps VLC's pages)
+- [ ] Context menus of files, folders and playlists (in the sidebar, seen on Linux)
 - [ ] Mini player (seen on Linux)
 
 ### Dialogs
 
 - [ ] Open network stream, new playlist
   - [ ] Open network stream (seen on Linux)
-  - [ ] New playlist: needs the media library
+  - [ ] New playlist (seen on Linux)
 - [ ] Add subtitles to a file, a folder or a playlist
 - [x] Keyboard shortcuts
   - [x] The nine reference actions, editing and saving, a conflict cancelled,

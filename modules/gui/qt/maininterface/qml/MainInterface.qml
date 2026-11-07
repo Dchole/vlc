@@ -50,6 +50,13 @@ Item {
     RedesignNetworkStreamWindow { }
     RedesignOnboardingWindow { }
 
+    // New Playlist of the redesign, made of the media library's types,
+    // which only exist with one.
+    Loader {
+        active: MainCtx.mediaLibraryAvailable
+        source: "qrc:///qt/qml/VLC/MediaLibrary/RedesignNewPlaylistWindow.qml"
+    }
+
     property bool _extendedFrameVisible: MainCtx.windowSuportExtendedFrame
                                       && MainCtx.clientSideDecoration
                                       && (MainCtx.intfMainWindow.visibility === Window.Windowed)

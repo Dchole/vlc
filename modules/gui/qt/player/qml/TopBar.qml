@@ -94,6 +94,8 @@ FocusScope{
     signal togglePlaylistVisibility()
     signal requestLockUnlockAutoHide(bool lock)
     signal backRequested()
+    // The library of the redesign, as a sidebar over the player
+    signal sidebarRequested()
 
     ///incomming signal to request all menu and popup to close
     signal forceUnlock()
@@ -553,7 +555,10 @@ FocusScope{
                     Navigation.parentItem: root
                     Navigation.leftItem: menuSelector.visible ? menuSelector : null
                     Navigation.rightItem: folderBtn.visible ? folderBtn : fullscreenLoader.item
-                    onClicked: root.backRequested()
+                    // The library as a sidebar when there is a media library,
+                    // the library itself otherwise
+                    onClicked: MainCtx.mediaLibraryAvailable ? root.sidebarRequested()
+                                                             : root.backRequested()
 
                     onHoveredChanged: root.requestLockUnlockAutoHide(hovered)
                 }

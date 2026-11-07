@@ -653,6 +653,8 @@ qml_modules += {
     'target' : 'medialibrary',
     'outdir' : 'VLC/MediaLibrary',
     'sources': files(
+        'medialibrary/qml/RedesignLibrarySidebar.qml',
+        'medialibrary/qml/RedesignNewPlaylistWindow.qml',
         'medialibrary/qml/ArtistTopBanner.qml',
         'medialibrary/qml/AudioGridItem.qml',
         'medialibrary/qml/HomeDisplay.qml',

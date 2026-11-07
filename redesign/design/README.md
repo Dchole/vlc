@@ -39,3 +39,7 @@ queried at will (the Figma MCP server allows 20 calls a month on a free plan).
 - `miniplayer.png`: the mini player and its variants, node `970:3091`.
 - `player-music.png`, `controls-waveform.png`: the music player, node
   `4767:23726`, and the control bar with the waveform, `2139:8124`.
+- `sidebar.png`: the library sidebar in its ten states, node `848:1996`.
+- `menu-file.png`, `menu-folder.png`, `menu-playlist.png`, `menu-sort.png`:
+  the menus of a file, a folder and a playlist of the library, and its
+  sort options (`2404:13340`, `2139:8935`, `2459:9389`, `856:2215`).

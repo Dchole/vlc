@@ -428,6 +428,14 @@ QString RedesignPreferences::chooseFolder(const QString& initial)
     return QFileDialog::getExistingDirectory(nullptr, qtr("Select folder"), initial);
 }
 
+QStringList RedesignPreferences::chooseFiles()
+{
+    QStringList urls;
+    for (const QUrl& url : QFileDialog::getOpenFileUrls(nullptr, qtr("Select files")))
+        urls.append(url.toString(QUrl::FullyEncoded));
+    return urls;
+}
+
 QString RedesignPreferences::videosFolder() const
 {
     return QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);

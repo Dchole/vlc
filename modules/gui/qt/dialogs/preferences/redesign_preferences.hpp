@@ -36,6 +36,8 @@ public:
     Q_INVOKABLE QString chooseFolder(const QString& initial);
     // The folder of the system for videos, ~/Videos for instance
     Q_INVOKABLE QString videosFolder() const;
+    // Files picked in the dialog of the system, as URLs
+    Q_INVOKABLE QStringList chooseFiles();
     Q_INVOKABLE QString chooseColor(const QString& initial);
     Q_INVOKABLE QVariantMap describe(const QString& name) const;
     Q_INVOKABLE QVariant value(const QString& name) const;

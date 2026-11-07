@@ -293,6 +293,8 @@ signals:
     void showRedesignShortcuts();
     // "Open Network Stream" of the redesign, RedesignNetworkStreamWindow.qml.
     void showRedesignNetworkStream();
+    // "New Playlist" of the redesign, RedesignNewPlaylistWindow.qml.
+    void showRedesignNewPlaylist();
     void showToolbarEditorDialog();
 
     //visiblity signal

@@ -1091,6 +1091,8 @@ FocusScope {
             onHoveredChanged: rootPlayer.lockUnlockAutoHide(hovered)
         }
 
+        onSidebarRequested: librarySidebar.open = !librarySidebar.open
+
         onBackRequested: {
             if (MainCtx.hasEmbededVideo && !MainCtx.canShowVideoPIP) {
                MainPlaylistController.stop()
@@ -1228,6 +1230,35 @@ FocusScope {
 
         onClicked:{
             playerToolbarVisibilityFSM.askShow();
+        }
+    }
+
+    // The library of the redesign over the player, at its left (Figma
+    // "sidebar", 848:1996). Made of the media library's types.
+    Loader {
+        id: librarySidebar
+
+        property bool open: false
+
+        anchors.left: parent.left
+        anchors.top: topBar.bottom
+        anchors.bottom: controlBar.top
+        width: Math.min(VLCStyle.dp(427, VLCStyle.scale), parent.width)
+        z: 2
+
+        active: open && MainCtx.mediaLibraryAvailable
+        visible: active
+        source: "qrc:///qt/qml/VLC/MediaLibrary/RedesignLibrarySidebar.qml"
+
+        // The bars stay while it is open.
+        onActiveChanged: rootPlayer.lockUnlockAutoHide(active)
+
+        Connections {
+            target: librarySidebar.item
+            function onPopOutRequested() {
+                librarySidebar.open = false
+                MainCtx.playerView = false
+            }
         }
     }
 

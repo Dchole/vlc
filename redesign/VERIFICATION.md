@@ -377,6 +377,33 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   after Finish the library's database has that folder and the two clips
   put there. Browse was not tried. The light half
   of the System swatch has square corners on its right.
+- Library sidebar over the player (`RedesignLibrarySidebar.qml`,
+  `design/sidebar.png`), opened by the library button of the top bar when
+  there is a media library (without one the button goes to the library
+  as before). Seen: the rail, the path with back and forth, the count,
+  sort, grid and search buttons; Home with Continue Watching, Listen
+  Again and Folders from the library; Videos lists Add and the library's
+  folder, and the folder its two videos ("Videos ▸ Videos"); Music lists
+  Songs, Albums, Artists and Genres, Albums the album of an indexed MP3
+  and the album its track ("… ▸ Albums ▸ Test Album"); Playlists lists
+  Create playlist and the playlists. A right click on a video opens the
+  file menu of the design (`design/menu-file.png`), on a playlist the
+  playlist menu; the sort menu lists its orders. The design's "Frequently
+  visited" sections are Folders, Playlists and Artists here, as VLC does
+  not count visits; the folder menu has what VLC can do for a folder of
+  the library. Not tried: the grid view, search, sorting, Network and
+  Recent, Play All, the actions of the menus, the pop-out button, the +
+  of the rail.
+- Before the fix, a right click on a row also opened it (the button took
+  the right button too on Qt 6.4); a left tap opens it now.
+- New Playlist (`RedesignNewPlaylistWindow.qml`, Figma 6259:14954), from
+  Create playlist: the name, and a box for files dropped or picked. Saved
+  with a name only, "Road Trip" and "Movie Night" are in the library's
+  database and the Playlists page. Before the fix, saving a playlist
+  without files aborted VLC: `MLPlaylistListModel::create()` passed the
+  empty list to `append()`, which asserts it is not. Not tried: dropping
+  or picking files. The thumbnail of the design is left out, the library
+  makes it from the media.
 - Music view (`design/player-music.png`, `design/controls-waveform.png`),
   with an MP3 made with ffmpeg that carries a cover, a title and an
   artist. Seen at 1280x800: the cover over most of the height on its
