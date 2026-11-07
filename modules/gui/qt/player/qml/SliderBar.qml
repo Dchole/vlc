@@ -32,6 +32,10 @@ T.ProgressBar {
     // instead of a thin line with a round handle that shows up on hover.
     property bool thick: false
 
+    // Bars for the sound rather than a bar: what plays is audio only
+    readonly property bool waveform: thick && !Player.hasVideoOutput && !Player.hasChapters
+                                     && Player.playingState !== Player.PLAYING_STATE_STOPPED
+
     readonly property real _thickInset: VLCStyle.dp(2, VLCStyle.scale)
     readonly property real _thickHandleWidth: VLCStyle.dp(8, VLCStyle.scale)
     readonly property real _thickRadius: VLCStyle.dp(4, VLCStyle.scale)
@@ -457,13 +461,63 @@ T.ProgressBar {
             }
         }
 
+        // The music player of the redesign shows the bar as a waveform
+        // (Figma, Controls "waveform", 2139:8124): bars, the played ones in
+        // the accent color. VLC gives the interface nothing of the sound to
+        // draw them from, so their heights are a pattern of their own, the
+        // same for a media each time, not the waveform of its audio.
+        Item {
+            id: waveform
+
+            visible: control.waveform
+            x: control._thickInset
+            y: control._segmentY
+            width: parent.width - 2 * control._thickInset
+            height: control._segmentHeight
+
+            readonly property real _step: VLCStyle.dp(5, VLCStyle.scale)
+            readonly property int _count: Math.max(0, Math.floor(width / _step))
+
+            // A number from the name of the media, to start the pattern from
+            readonly property int _seed: {
+                const name = String(Player.name)
+                let hash = 7
+                for (let i = 0; i < name.length; ++i)
+                    hash = (hash * 31 + name.charCodeAt(i)) % 2147483647
+                return hash
+            }
+
+            Repeater {
+                model: waveform.visible ? waveform._count : 0
+
+                Rectangle {
+                    required property int index
+
+                    // Some bars only a dot, most of them a part of the height
+                    readonly property real _level: {
+                        const n = Math.sin((index + 1) * 12.9898 + waveform._seed * 0.0001) * 43758.5453
+                        const r = n - Math.floor(n)
+                        return r < 0.18 ? 0.12 : 0.3 + 0.7 * r
+                    }
+
+                    x: index * waveform._step
+                    width: VLCStyle.dp(2, VLCStyle.scale)
+                    height: Math.max(width, waveform.height * 0.62 * _level)
+                    y: (waveform.height - height) / 2
+                    radius: width / 2
+                    color: (x + waveform.x < control._thickPlayedEnd) ? theme.accent
+                                                                      : Qt.alpha(theme.fg.secondary, 0.55)
+                }
+            }
+        }
+
         Rectangle {
             id: progressRect
             x: control.thick ? control._thickInset : 0
             y: control._segmentY
             width: control.thick ? (control._thickPlayedEnd - x)
                                  : (control.visualPosition * parent.width)
-            visible: !Player.hasChapters
+            visible: !Player.hasChapters && !control.waveform
             color: control._playedColor
             height: control._segmentHeight
             radius: control.thick ? control._thickRadius : control._seekPointsRadius

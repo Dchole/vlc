@@ -126,8 +126,12 @@ decltype (ControlbarProfileModel::m_defaults)
                         {
                             {
                                 {
+                                    // Ten seconds back and forth around play,
+                                    // as in the music player of the redesign
                                     ControlListModel::PREVIOUS_BUTTON,
+                                    ControlListModel::SKIP_BACK_BUTTON,
                                     ControlListModel::PLAY_BUTTON,
+                                    ControlListModel::SKIP_FW_BUTTON,
                                     ControlListModel::NEXT_BUTTON
                                 },
                                 {},

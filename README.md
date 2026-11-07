@@ -127,7 +127,8 @@ but not yet on Windows; what was seen is in
 - [ ] Full screen: both bars on hover, an option to hide the interface (seen on Linux)
 - [ ] Resume prompt next to the playback controls (seen on Linux)
 - [ ] Menus: the menu of the top bar, the right-click menu, two-tone icons (seen on Linux)
-- [ ] Music: cover view, waveform seek bar
+- [ ] Music: cover view, waveform seek bar (seen on Linux; the bars are a
+      pattern, not computed from the sound)
 
 ### Library
 

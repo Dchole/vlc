@@ -377,6 +377,17 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   after Finish the library's database has that folder and the two clips
   put there. Browse was not tried. The light half
   of the System swatch has square corners on its right.
+- Music view (`design/player-music.png`, `design/controls-waveform.png`),
+  with an MP3 made with ffmpeg that carries a cover, a title and an
+  artist. Seen at 1280x800: the cover over most of the height on its
+  blurred copy, "untangle - juxtopposed" under it, and in the control bar
+  previous, 10 s back, play, 10 s forward, next, and the seek bar as bars,
+  the played ones in the accent color. The bars are a pattern of their own
+  for each media (by its name), not the waveform of its sound: VLC gives
+  the interface nothing to draw that from. The row of buttons under the
+  cover stays only for media with lyrics, for the lyrics; ten seconds back
+  and forth moved to the control bar of the default style. The window
+  opens small for audio (600 wide), where the bar has little room.
 - Mini player (`PIPPlayer.qml`, Figma 970:3091, `design/miniplayer.png`):
   going to the library while a video plays shows the card: the video
   framed, its progress, its title, its folder ("Videos"; the album when

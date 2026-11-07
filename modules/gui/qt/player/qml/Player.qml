@@ -648,7 +648,11 @@ FocusScope {
 
                         Item {
                             id: coverItem
-                            Layout.preferredHeight: rootPlayer.height / sizeConstant
+                            // The cover takes most of the height, as in the music
+                            // player of the redesign (Figma 4767:23726), with room
+                            // for its title under it.
+                            Layout.preferredHeight: Math.min(rootPlayer.height * 0.62,
+                                                             centerContent.height - VLCStyle.dp(110, VLCStyle.scale))
                             Layout.preferredWidth: cover.paintedWidth
                             Layout.maximumHeight: centerContent.height
                             Layout.alignment: Qt.AlignHCenter
@@ -739,11 +743,13 @@ FocusScope {
                                 value: centerContent.height > (albumLabel.y + albumLabel.height)
                             }
 
-                            text: Player.album
-                            font.pixelSize: VLCStyle.fontSize_xxlarge
+                            // "title - artist", in one line as in the design
+                            text: [Player.title || Player.name, Player.artist].filter((part) => !!part).join(" - ")
+                            font.pixelSize: VLCStyle.dp(24, VLCStyle.scale)
+                            font.weight: Font.Normal
                             horizontalAlignment: Text.AlignHCenter
-                            color: centerTheme.fg.primary
-                            Accessible.description: qsTr("album")
+                            color: centerTheme.fg.secondary
+                            Accessible.description: qsTr("title and artist")
 
                             property bool componentCompleted: false
 
@@ -761,7 +767,8 @@ FocusScope {
                             Binding on visible {
                                 delayed: true
                                 when: artistLabel.componentCompleted
-                                value: centerContent.height > (artistLabel.y + artistLabel.height)
+                                // The artist is in the line above.
+                                value: false
                             }
 
                             text: Player.artist
@@ -847,7 +854,10 @@ FocusScope {
                             Binding on visible {
                                 delayed: true
                                 when: audioControls.componentCompleted
-                                value: Player.videoTracks.count === 0 && centerContent.height > (audioControls.y + audioControls.height)
+                                // Ten seconds back and forth are in the control bar
+                                // of the redesign: the row stays for the lyrics.
+                                value: Player.videoTracks.count === 0 && Player.hasLyrics
+                                       && centerContent.height > (audioControls.y + audioControls.height)
                             }
 
                             focus: true

@@ -36,3 +36,6 @@ queried at will (the Figma MCP server allows 20 calls a month on a free plan).
   `onboarding-3-shortcuts.png`: the three welcome screens, nodes
   `1899:3055`, `1902:3670` (the theme screen in one of its nine colors) and
   `1902:6770`.
+- `miniplayer.png`: the mini player and its variants, node `970:3091`.
+- `player-music.png`, `controls-waveform.png`: the music player, node
+  `4767:23726`, and the control bar with the waveform, `2139:8124`.
