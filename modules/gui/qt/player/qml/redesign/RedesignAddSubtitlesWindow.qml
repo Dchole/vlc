@@ -26,8 +26,12 @@ Window {
     }
     readonly property color _control: theme.lightTheme ? "#D9D9D9" : "#151515"
 
-    // The videos are those of this folder, or only this file (URLs)
+    // The videos are those of this folder, or only this file, or those of
+    // a playlist (URLs)
     property bool folderMode: true
+    property bool playlistMode: false
+    property var playlistVideos: []
+    property string playlistTitle: ""
     property string folder: ""
     property string file: ""
     // The subtitle files that were picked, as URLs
@@ -68,6 +72,7 @@ Window {
             isFolder = false
         }
         folderMode = isFolder
+        playlistMode = false
         file = isFolder ? "" : url
         folder = isFolder ? url : _parentOf(url)
         subtitles = []
@@ -78,14 +83,35 @@ Window {
         content.forceActiveFocus()
     }
 
+    // The videos of a playlist: those that are files, as subtitles are
+    // copied next to them
+    function beginPlaylist(videos, title: string) {
+        playlistVideos = videos.filter((url) => String(url).startsWith("file://"))
+        playlistTitle = title
+        playlistMode = true
+        folderMode = false
+        file = playlistVideos.length > 0 ? playlistVideos[0] : ""
+        folder = file.length > 0 ? _parentOf(file) : ""
+        subtitles = []
+        message = playlistVideos.length < videos.length
+                  ? qsTr("%n item(s) of the playlist are not files on this computer and are left out.", "", videos.length - playlistVideos.length)
+                  : ""
+        _refresh()
+        visible = true
+        raise(); requestActivate()
+        content.forceActiveFocus()
+    }
+
     function _refresh() {
-        const videos = folderMode ? helper.videosIn(folder) : (file.length > 0 ? [file] : [])
+        const videos = playlistMode ? playlistVideos
+                     : folderMode ? helper.videosIn(folder) : (file.length > 0 ? [file] : [])
         rows = helper.pairSubtitles(videos, subtitles)
     }
 
     function _setFolderMode(on: bool) {
-        if (on === folderMode)
+        if (on === folderMode && !playlistMode)
             return
+        playlistMode = false
         if (!on) {
             // The playing video when it is in this folder, else the first one
             const playing = Player.url.toString()
@@ -97,7 +123,7 @@ Window {
     }
 
     function _pickSubtitles() {
-        const picked = helper.chooseSubtitleFiles(folderMode, folder)
+        const picked = helper.chooseSubtitleFiles(folderMode || playlistMode, folder)
         if (picked.length === 0)
             return
         subtitles = picked
@@ -134,6 +160,7 @@ Window {
     Connections {
         target: DialogsProvider
         function onShowRedesignAddSubtitles(target, isFolder) { root.begin(target, isFolder) }
+        function onShowRedesignAddSubtitlesList(videos, title) { root.beginPlaylist(videos, title) }
     }
 
     component Dropdown: Rectangle {
@@ -194,7 +221,8 @@ Window {
         Dropdown {
             id: targetBox
             x: theme.dp(9); y: theme.dp(53)
-            text: root.folderMode ? qsTr("To This Folder") : qsTr("To This File")
+            text: root.playlistMode ? qsTr("To This Playlist")
+                  : root.folderMode ? qsTr("To This Folder") : qsTr("To This File")
             onClicked: targetMenu.popup(targetBox, 0, height + theme.dp(4))
         }
         RedesignMenu {
@@ -203,6 +231,17 @@ Window {
             entryWidth: theme.dp(200)
             T.Action { text: qsTr("To This Folder"); icon.source: "qrc:///redesign/menu/folder-two-tone.svg"; onTriggered: root._setFolderMode(true) }
             T.Action { text: qsTr("To This File"); icon.source: "qrc:///redesign/menu/video-two-tone.svg"; onTriggered: root._setFolderMode(false) }
+            T.Action {
+                text: qsTr("To This Playlist")
+                icon.source: "qrc:///redesign/menu/playlist-two-tone.svg"
+                enabled: root.playlistVideos.length > 0
+                onTriggered: {
+                    root.playlistMode = true
+                    root.folderMode = false
+                    root.subtitles = []
+                    root._refresh()
+                }
+            }
         }
 
         Dropdown {
@@ -235,7 +274,7 @@ Window {
             Widgets.IconLabel {
                 x: theme.dp(8); anchors.verticalCenter: parent.verticalCenter
                 width: theme.dp(24); height: theme.dp(24)
-                text: root.folderMode ? VLCIcons.folder : VLCIcons.video
+                text: root.folderMode ? VLCIcons.folder : root.playlistMode ? VLCIcons.playlist : VLCIcons.video
                 color: theme.foreground; font.pixelSize: theme.dp(20)
             }
             Text {
@@ -244,6 +283,8 @@ Window {
                 elide: Text.ElideLeft
                 color: theme.foreground; font.pixelSize: theme.dp(14)
                 text: {
+                    if (root.playlistMode)
+                        return root.playlistTitle
                     const url = root.folderMode ? root.folder : root.file
                     const parts = decodeURIComponent(url.replace(/^file:\/\//, "")).split("/").filter((part) => part.length > 0)
                     return parts.slice(-4).join(" / ")
@@ -254,6 +295,7 @@ Window {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
+                enabled: !root.playlistMode
                 onClicked: root._pickTarget()
             }
         }
@@ -333,7 +375,8 @@ Window {
         Text {
             anchors.centerIn: list
             visible: root.rows.length === 0
-            text: root.folderMode ? qsTr("There is no video in this folder.") : qsTr("No video is chosen.")
+            text: root.playlistMode ? qsTr("There is no video file in this playlist.")
+                  : root.folderMode ? qsTr("There is no video in this folder.") : qsTr("No video is chosen.")
             color: theme.foreground; font.pixelSize: theme.dp(14)
         }
 
@@ -361,7 +404,7 @@ Window {
                 // What went wrong, or else how subtitles are chosen
                 text: root.message.length > 0 ? root.message
                       : root.subtitles.length > 0 || root.rows.length === 0 ? ""
-                      : root.folderMode ? qsTr("Click the right side to choose the subtitle files of these videos.")
+                      : root.folderMode || root.playlistMode ? qsTr("Click the right side to choose the subtitle files of these videos.")
                       : qsTr("Click the right side to choose a subtitle file for this video.")
                 color: root.message.length > 0 ? theme.bright : theme.foreground
                 font.pixelSize: theme.dp(14)

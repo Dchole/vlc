@@ -514,6 +514,11 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   the one that plays: Save copies the subtitle and the player loads it at
   once (`loading spu slave: .../The_Wand_S01E02.srt` in the log). Both lists
   of the dialog open; the file dialog opens in the folder of the videos.
+  For a playlist ("Add Subtitles" of a playlist's menu, "To This
+  Playlist"): a playlist of episodes 1 and 3 listed those two; of the three
+  files picked, episodes 1 and 3 were paired and copied, the third left
+  out. Items of a playlist that are not files are left out, and the dialog
+  says how many.
   Not tried: "From OpenSubtitles", which hands over to VLC's VLSub
   extension (the test machine has no account or network for it); names
   that match neither by name nor by episode are paired by order only when

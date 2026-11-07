@@ -566,6 +566,35 @@ Rectangle {
 
     function _menuIds() : var { return _menuData ? [_menuData.id] : [] }
 
+    // Add Subtitles for the videos of a playlist: its media are read from
+    // a model of their own, then given to the dialog.
+    function _playlistSubtitles(playlist) {
+        const expected = playlist.count ?? 0
+        const title = String(playlist.name ?? "")
+        if (expected === 0) {
+            DialogsProvider.showRedesignAddSubtitlesList([], title)
+            return
+        }
+        const model = Qt.createQmlObject("import VLC.MediaLibrary; MLPlaylistModel { ml: MediaLib }",
+                                         root, "subtitlesPlaylist")
+        let done = false
+        const read = () => {
+            if (done || model.count < expected)
+                return
+            done = true
+            const indexes = []
+            for (let i = 0; i < model.count; ++i)
+                indexes.push(i)
+            model.getDataFlat(indexes, (items) => {
+                DialogsProvider.showRedesignAddSubtitlesList(items.map((item) => String(item.mrl)), title)
+                model.destroy()
+            })
+        }
+        model.countChanged.connect(read)
+        model.parentId = playlist.id
+        read()
+    }
+
     RedesignMenu {
         id: fileMenu
         dark: !root.theme.lightTheme
@@ -649,6 +678,11 @@ Rectangle {
             }
         }
         T.Action { text: qsTr("Add to Queue"); icon.source: root._icons + "queue-two-tone.svg"; onTriggered: MediaLib.addToPlaylist(root._menuIds()) }
+        T.Action {
+            text: qsTr("Add Subtitles")
+            icon.source: root._icons + "subtitles-two-tone.svg"
+            onTriggered: root._playlistSubtitles(root._menuData)
+        }
         T.Action { property bool divider: true; text: qsTr("Create playlist"); icon.source: root._icons + "playlist-two-tone.svg"; onTriggered: DialogsProvider.showRedesignNewPlaylist() }
     }
 

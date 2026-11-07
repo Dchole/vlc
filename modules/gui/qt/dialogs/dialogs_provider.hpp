@@ -298,6 +298,8 @@ signals:
     // "Add Subtitles" of the redesign, RedesignAddSubtitlesWindow.qml: for
     // the videos of a folder or for one file (URLs); empty for the playing one.
     void showRedesignAddSubtitles(const QString& target, bool folder);
+    // The same for the videos of a playlist (URLs), named title
+    void showRedesignAddSubtitlesList(const QStringList& videos, const QString& title);
     void showToolbarEditorDialog();
 
     //visiblity signal

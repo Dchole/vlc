@@ -149,7 +149,7 @@ but not yet on Windows; what was seen is in
 - [ ] Add subtitles to a file, a folder or a playlist
   - [ ] A file or a folder, from the computer (seen on Linux)
   - [ ] From OpenSubtitles: hands over to VLSub, not tried
-  - [ ] A playlist: not done
+  - [ ] A playlist: its videos that are files (seen on Linux)
 - [x] Keyboard shortcuts
   - [x] The nine reference actions, editing and saving, a conflict cancelled,
         and the saved shortcut still present after a restart
