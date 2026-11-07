@@ -392,9 +392,9 @@ The clip is a 5 minute color-bar video made with ffmpeg.
   plays from 01:30 and marks it. Without a media library the Bookmarks tab
   says that the library keeps them. With it, + adds "Bookmark at 00:17"
   to the list and to the library's database. Before the fix + was always
-  dimmed (it waited for a `Player.isPlaying` that does not exist). Picking
-  a bookmark and the "No bookmark yet." line of an empty list were not
-  seen.
+  dimmed (it waited for a `Player.isPlaying` that does not exist). A click
+  on the bookmark seeks to 17.732 s; a clip without bookmarks shows "No
+  bookmark yet.".
 - Open Recent of the main menu, with the media library: lists the clip
   that was played ("clip chapters").
 - Before the fix the chapter list gave its start times as times of the
